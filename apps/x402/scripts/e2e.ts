@@ -5,7 +5,7 @@ import { wrap } from "@faremeter/fetch";
 import { createPaymentHandler } from "@faremeter/payment-solana/exact";
 import { createLocalWallet } from "@faremeter/wallet-solana";
 import { base58 } from "@scure/base";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
 
 const SOLANA_NETWORK = "mainnet-beta";
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
@@ -28,6 +28,12 @@ function firstDefined(...values: Array<string | undefined>): string | undefined 
 
 function normalizeBaseUrl(url: string): string {
 	return url.endsWith("/") ? url.slice(0, -1) : url;
+}
+
+function solanaExplorerTxUrl(signature: string, network: string): string {
+	const base = `https://explorer.solana.com/tx/${encodeURIComponent(signature)}`;
+	if (network === "mainnet-beta") return base;
+	return `${base}?cluster=${encodeURIComponent(network)}`;
 }
 
 type PaymentResponseHeader = {
@@ -77,6 +83,7 @@ const BALANCE_FUND_USER = firstDefined(
 const DEPOSIT_AMOUNT = Number(process.env.DEPOSIT_AMOUNT ?? "10000");
 const WITHDRAW_AMOUNT = Number(process.env.WITHDRAW_AMOUNT ?? "1000");
 const WITHDRAW_ALL = String(process.env.WITHDRAW_ALL ?? "false") === "true";
+const SIGN_AND_SEND_TX = String(process.env.SIGN_AND_SEND_TX ?? "true") === "true";
 
 function payloadFor(endpoint: x402Endpoint): AgentTxPayload {
 	if (endpoint === x402Endpoint.Deposit) {
@@ -122,6 +129,95 @@ function requestFor(endpoint: x402Endpoint): {
 		},
 		payloadForLog: JSON.stringify(payload),
 	};
+}
+
+function isBase64Like(value: string): boolean {
+	return /^[A-Za-z0-9+/=_-]+$/.test(value) && value.length >= 24;
+}
+
+function normalizeBase64(value: string): string {
+	const normalized = value.replace(/-/g, "+").replace(/_/g, "/").replace(/\s+/g, "");
+	const paddedLength = Math.ceil(normalized.length / 4) * 4;
+	return normalized.padEnd(paddedLength, "=");
+}
+
+function extractTransactionString(responseText: string): string {
+	const trimmed = responseText.trim();
+	try {
+		const parsed = JSON.parse(trimmed) as unknown;
+		if (typeof parsed === "string") {
+			return parsed;
+		}
+		throw new Error("expected response body to be a transaction string");
+	} catch (error) {
+		if (error instanceof SyntaxError) {
+			// non-JSON payloads are accepted below
+			return trimmed;
+		}
+		throw error;
+	}
+}
+
+function signAndSerializeTransaction(txString: string): { rawTx: Uint8Array; signature: string } {
+	const trimmed = txString.trim();
+	const decodeAttempts: Uint8Array[] = [];
+
+	if (isBase64Like(trimmed)) {
+		const base64 = normalizeBase64(trimmed);
+		decodeAttempts.push(Uint8Array.from(Buffer.from(base64, "base64")));
+	}
+
+	try {
+		decodeAttempts.push(base58.decode(trimmed));
+	} catch {
+		// ignore decode failure; we will throw below if all attempts fail
+	}
+
+	for (const bytes of decodeAttempts) {
+		if (bytes.length === 0) continue;
+
+		try {
+			const versioned = VersionedTransaction.deserialize(bytes);
+			versioned.sign([keypair]);
+			const signatureBytes = versioned.signatures[0];
+			if (!signatureBytes) {
+				throw new Error("missing signature after signing versioned transaction");
+			}
+			return {
+				rawTx: versioned.serialize(),
+				signature: base58.encode(signatureBytes),
+			};
+		} catch {
+			// try legacy below
+		}
+
+		try {
+			const legacy = Transaction.from(bytes);
+			legacy.partialSign(keypair);
+			if (!legacy.signature) {
+				throw new Error("missing signature after signing legacy transaction");
+			}
+			return {
+				rawTx: legacy.serialize(),
+				signature: base58.encode(legacy.signature),
+			};
+		} catch {
+			// try next decode attempt
+		}
+	}
+
+	throw new Error("Unable to decode response as a Solana transaction (expected base64/base58 tx data).");
+}
+
+async function signAndSendReturnedTransaction(endpoint: x402Endpoint, txString: string): Promise<string> {
+	if (!txString || txString.length < 20) {
+		throw new Error(`Invalid response body for ${endpoint}: missing transaction payload.`);
+	}
+
+	const { rawTx, signature } = signAndSerializeTransaction(txString);
+	const sentSignature = await connection.sendRawTransaction(rawTx, { skipPreflight: false });
+	await connection.confirmTransaction(sentSignature, "confirmed");
+	return sentSignature || signature;
 }
 
 async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
@@ -214,17 +310,16 @@ async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
 			);
 		}
 	} else {
-		// check if the response body is a valid txn string
-		const txn = responseText;
-		if (typeof txn !== "string") {
-			throw new Error(`Invalid response body for ${endpoint}: expected string, got ${typeof txn}`);
+		const txString = extractTransactionString(responseText);
+		if (txString.length <= 25) {
+			throw new Error(`Invalid response body for ${endpoint}: expected valid tx payload.`);
 		}
 
-		// arbitrary length check for txn string
-		if (txn.length <= 25) {
-			throw new Error(
-				`Invalid response body for ${endpoint}: expected valid txn string, got ${txn}`,
-			);
+		if (SIGN_AND_SEND_TX) {
+			console.log("signing and sending transaction...");
+			const signature = await signAndSendReturnedTransaction(endpoint, txString);
+			console.log(`submitted and confirmed transaction for ${endpoint}: ${signature}`);
+			console.log(`explorer: ${solanaExplorerTxUrl(signature, SOLANA_NETWORK)}`);
 		}
 	}
 
