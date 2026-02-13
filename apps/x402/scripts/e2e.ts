@@ -206,10 +206,15 @@ function signAndSerializeTransaction(txString: string): { rawTx: Uint8Array; sig
 		}
 	}
 
-	throw new Error("Unable to decode response as a Solana transaction (expected base64/base58 tx data).");
+	throw new Error(
+		"Unable to decode response as a Solana transaction (expected base64/base58 tx data).",
+	);
 }
 
-async function signAndSendReturnedTransaction(endpoint: x402Endpoint, txString: string): Promise<string> {
+async function signAndSendReturnedTransaction(
+	endpoint: x402Endpoint,
+	txString: string,
+): Promise<string> {
 	if (!txString || txString.length < 20) {
 		throw new Error(`Invalid response body for ${endpoint}: missing transaction payload.`);
 	}
@@ -220,10 +225,10 @@ async function signAndSendReturnedTransaction(endpoint: x402Endpoint, txString: 
 	return sentSignature || signature;
 }
 
-async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
+async function runE2ETest(endpoint: x402Endpoint): Promise<void> {
 	const { endpointUrl, init, payloadForLog } = requestFor(endpoint);
 
-	console.log(`\n=== x402 smoke test: ${endpoint} ===`);
+	console.log(`\n=== x402 e2e test: ${endpoint} ===`);
 	console.log(`target: ${endpointUrl}`);
 	if (payloadForLog) {
 		console.log("payload:", payloadForLog);
@@ -328,6 +333,6 @@ async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
 	);
 }
 
-await runEndpointSmokeTest(x402Endpoint.Deposit);
-await runEndpointSmokeTest(x402Endpoint.Withdraw);
-await runEndpointSmokeTest(x402Endpoint.Balance);
+await runE2ETest(x402Endpoint.Deposit);
+await runE2ETest(x402Endpoint.Withdraw);
+await runE2ETest(x402Endpoint.Balance);
