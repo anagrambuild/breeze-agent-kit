@@ -13,7 +13,7 @@ const USDC_MAINNET_MINT =
 	process.env.USDC_MAINNET_MINT || "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const API_URL = process.env.API_URL || "http://127.0.0.1:3402";
 
-enum InfraAgentEndpoint {
+enum x402Endpoint {
 	Deposit = "/deposit",
 	Withdraw = "/withdraw",
 }
@@ -71,8 +71,8 @@ const DEPOSIT_AMOUNT = Number(process.env.DEPOSIT_AMOUNT ?? "10000");
 const WITHDRAW_AMOUNT = Number(process.env.WITHDRAW_AMOUNT ?? "1000");
 const WITHDRAW_ALL = String(process.env.WITHDRAW_ALL ?? "false") === "true";
 
-function payloadFor(endpoint: InfraAgentEndpoint): AgentTxPayload {
-	if (endpoint === InfraAgentEndpoint.Deposit) {
+function payloadFor(endpoint: x402Endpoint): AgentTxPayload {
+	if (endpoint === x402Endpoint.Deposit) {
 		return {
 			amount: DEPOSIT_AMOUNT,
 			user_key: AGENT_USER_KEY,
@@ -92,7 +92,7 @@ function payloadFor(endpoint: InfraAgentEndpoint): AgentTxPayload {
 	};
 }
 
-async function runEndpointSmokeTest(endpoint: InfraAgentEndpoint): Promise<void> {
+async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
 	const endpointUrl = `${apiBaseUrl}${endpoint}`;
 	const payload = payloadFor(endpoint);
 
@@ -190,5 +190,5 @@ async function runEndpointSmokeTest(endpoint: InfraAgentEndpoint): Promise<void>
 	);
 }
 
-await runEndpointSmokeTest(InfraAgentEndpoint.Deposit);
-await runEndpointSmokeTest(InfraAgentEndpoint.Withdraw);
+await runEndpointSmokeTest(x402Endpoint.Deposit);
+await runEndpointSmokeTest(x402Endpoint.Withdraw);
