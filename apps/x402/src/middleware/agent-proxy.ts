@@ -3,8 +3,9 @@ import { signAgentRequest } from "../utils/proxy-signature.js";
 
 type ProxyOptions = {
 	upstreamPath: string;
-	method?: "POST" | "PUT" | "PATCH";
+	method?: "GET" | "POST" | "PUT" | "PATCH";
 	buildPayload: (c: Context) => unknown | Promise<unknown>;
+	buildUpstreamPath?: (c: Context) => string | Promise<string>;
 };
 
 function getRequiredEnv(name: string): string | null {
@@ -30,19 +31,23 @@ export function createSignedAgentProxy(options: ProxyOptions): MiddlewareHandler
 				return c.json({ message: "proxy misconfigured" }, 500);
 			}
 
+			const upstreamPath = options.buildUpstreamPath
+				? await options.buildUpstreamPath(c)
+				: options.upstreamPath;
 			const payload = await options.buildPayload(c);
 			const signed = signAgentRequest({
 				method,
-				path: options.upstreamPath,
+				path: upstreamPath,
 				body: payload,
 				keyId: agentProxyKeyId,
 				secret: agentProxySecret,
 			});
+			const shouldSendBody = !["GET"].includes(method);
 
-			const upstream = await fetch(buildUpstreamUrl(rustApiBaseUrl, options.upstreamPath), {
+			const upstream = await fetch(buildUpstreamUrl(rustApiBaseUrl, upstreamPath), {
 				method,
 				headers: signed.headers,
-				body: signed.bodyBytes,
+				...(shouldSendBody ? { body: signed.bodyBytes } : {}),
 			});
 
 			const text = await upstream.text();

@@ -1,12 +1,13 @@
 # x402
 
-Experimental x402 payment wall service built with Hono.
+`x402` is a Hono-based proxy service that wraps dedicated Infra API endpoints and enforces x402 payment requirements before forwarding requests upstream.
 
 ## Endpoints
 
 - `GET /healthz` - basic health response
-- `/deposit/*` - protected by x402 middleware
-- `/withdraw/*` - protected by x402 middleware
+- `/deposit/*` - x402-protected proxy to Infra API agent deposit endpoints
+- `/withdraw/*` - x402-protected proxy to Infra API agent withdraw endpoints
+- `/balance/*` - x402-protected proxy to Infra API agent balance endpoints
 
 ## Development
 

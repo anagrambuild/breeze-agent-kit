@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { x402PaymentWall } from "./middleware/x402.js";
+import { balance } from "./routes/balance.js";
 import { deposit } from "./routes/deposit.js";
 import { withdraw } from "./routes/withdraw.js";
 
@@ -21,6 +22,8 @@ app.get("/healthz", (c) =>
 // paid endpoints — x402 payment wall
 app.use("/deposit/*", x402PaymentWall);
 app.use("/withdraw/*", x402PaymentWall);
+app.use("/balance/*", x402PaymentWall);
 
+app.route("/balance", balance);
 app.route("/deposit", deposit);
 app.route("/withdraw", withdraw);

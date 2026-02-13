@@ -15,7 +15,7 @@ const signInputSchema = z.object({
 		.min(1)
 		.startsWith("/")
 		.refine((p) => !p.includes("?") && !p.includes("#"), "path must be path-only"),
-	body: z.unknown().refine((v) => v !== undefined, "body cannot be undefined"),
+	body: z.unknown().optional(),
 	keyId: z.string().trim().min(1),
 	secret: z.string().min(1),
 	timestamp: z.number().int().nonnegative().optional(), // unix seconds
@@ -29,13 +29,14 @@ type SignResult = {
 		"x-agent-timestamp": string;
 		"x-agent-nonce": string;
 		"x-agent-signature": string;
-		"content-type": "application/json";
+		"content-type"?: "application/json";
 	};
 	bodyBytes: Buffer;
 	canonical: string;
 };
 
 function toBodyBytes(body: unknown): Buffer {
+	if (body === undefined) return Buffer.alloc(0);
 	if (Buffer.isBuffer(body)) return body;
 	if (typeof body === "string") return Buffer.from(body, "utf8");
 	return Buffer.from(JSON.stringify(body ?? null), "utf8");
@@ -70,7 +71,7 @@ export function signAgentRequest(input: SignInput): SignResult {
 			"x-agent-timestamp": String(timestamp),
 			"x-agent-nonce": nonce,
 			"x-agent-signature": signatureHex,
-			"content-type": "application/json",
+			...(bodyBytes.length > 0 ? { "content-type": "application/json" } : {}),
 		},
 		bodyBytes,
 		canonical,
