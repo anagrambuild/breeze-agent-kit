@@ -1,23 +1,29 @@
 {
-  "name": "x402",
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsup",
-    "start": "node dist/index.js",
-    "lint": "biome lint ./src",
-    "format": "biome format ./src --write",
-    "check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "hono": "^4.7.4",
-    "@hono/node-server": "^1.14.1"
-  },
-  "devDependencies": {
-    "tsx": "^4.19.3",
-    "tsup": "^8.4.0",
-    "@types/node": "^22.13.4"
-  }
+	"name": "x402",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun run --watch src/index.ts",
+		"build": "bun build src/index.ts --outdir dist --target bun --sourcemap",
+		"start": "bun dist/index.js",
+		"check": "bun x tsc --noEmit",
+		"test": "bun test",
+		"e2e": "bun scripts/e2e.ts"
+	},
+	"dependencies": {
+		"@faremeter/fetch": "^0.16.0",
+		"@faremeter/info": "^0.16.0",
+		"@faremeter/middleware": "^0.16.0",
+		"@faremeter/payment-solana": "^0.16.0",
+		"@faremeter/wallet-solana": "^0.16.0",
+		"@hono/zod-validator": "^0.7.6",
+		"@scure/base": "^2.0.0",
+		"@solana/web3.js": "^1.98.4",
+		"hono": "^4.7.4",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	}
 }
