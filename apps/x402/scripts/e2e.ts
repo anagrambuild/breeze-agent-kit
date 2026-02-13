@@ -11,7 +11,7 @@ const SOLANA_NETWORK = "mainnet-beta";
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
 const USDC_MAINNET_MINT =
 	process.env.USDC_MAINNET_MINT || "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-const INFRA_API_URL = process.env.X402_API_BASE_URL || "http://127.0.0.1:3402";
+const API_URL = process.env.API_URL || "http://127.0.0.1:3402";
 
 enum InfraAgentEndpoint {
 	Deposit = "/deposit",
@@ -45,7 +45,7 @@ type AgentTxPayload = {
 	all?: boolean;
 };
 
-const apiBaseUrl = normalizeBaseUrl(INFRA_API_URL);
+const apiBaseUrl = normalizeBaseUrl(API_URL);
 
 const svmPrivateKey = firstDefined(process.env.SOLANA_PRIVATE_KEY, process.env.SVM_PRIVATE_KEY);
 if (!svmPrivateKey) {
