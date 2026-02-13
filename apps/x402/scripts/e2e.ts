@@ -16,6 +16,7 @@ const API_URL = process.env.API_URL || "http://127.0.0.1:3402";
 enum x402Endpoint {
 	Deposit = "/deposit",
 	Withdraw = "/withdraw",
+	Balance = "/balance",
 }
 
 function firstDefined(...values: Array<string | undefined>): string | undefined {
@@ -65,6 +66,12 @@ const AGENT_USER_KEY =
 const AGENT_PAYER_KEY = firstDefined(process.env.AGENT_PAYER_KEY, process.env.PAYER_KEY);
 const STRATEGY_ID = process.env.STRATEGY_ID ?? "";
 const BASE_ASSET = process.env.BASE_ASSET ?? "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+const BALANCE_FUND_USER = firstDefined(
+	process.env.BALANCE_FUND_USER,
+	process.env.FUND_USER,
+	process.env.AGENT_FUND_USER,
+	AGENT_USER_KEY,
+)!;
 
 // Base units (USDC has 6 decimals)
 const DEPOSIT_AMOUNT = Number(process.env.DEPOSIT_AMOUNT ?? "10000");
@@ -92,20 +99,42 @@ function payloadFor(endpoint: x402Endpoint): AgentTxPayload {
 	};
 }
 
-async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
-	const endpointUrl = `${apiBaseUrl}${endpoint}`;
+function requestFor(endpoint: x402Endpoint): {
+	endpointUrl: string;
+	init: RequestInit;
+	payloadForLog?: string;
+} {
+	if (endpoint === x402Endpoint.Balance) {
+		const endpointUrl = `${apiBaseUrl}${endpoint}/${encodeURIComponent(BALANCE_FUND_USER)}`;
+		return {
+			endpointUrl,
+			init: { method: "GET" },
+		};
+	}
+
 	const payload = payloadFor(endpoint);
+	return {
+		endpointUrl: `${apiBaseUrl}${endpoint}`,
+		init: {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify(payload),
+		},
+		payloadForLog: JSON.stringify(payload),
+	};
+}
+
+async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
+	const { endpointUrl, init, payloadForLog } = requestFor(endpoint);
 
 	console.log(`\n=== x402 smoke test: ${endpoint} ===`);
 	console.log(`target: ${endpointUrl}`);
-	console.log("payload:", JSON.stringify(payload));
+	if (payloadForLog) {
+		console.log("payload:", payloadForLog);
+	}
 	console.log("preflight: checking endpoint without payment header");
 
-	const preflight = await fetch(endpointUrl, {
-		method: "POST",
-		headers: { "content-type": "application/json" },
-		body: JSON.stringify(payload),
-	});
+	const preflight = await fetch(endpointUrl, init);
 
 	const preflightBody = await preflight.text();
 	console.log(`preflight status: ${preflight.status}`);
@@ -134,11 +163,7 @@ async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
 	console.log("requesting paid endpoint with automatic x402 handling");
 	let response: Response;
 	try {
-		response = await fetchWithPayment(endpointUrl, {
-			method: "POST",
-			headers: { "content-type": "application/json" },
-			body: JSON.stringify(payload),
-		});
+		response = await fetchWithPayment(endpointUrl, init);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
 		if (message.includes("Non-base58 character")) {
@@ -174,15 +199,33 @@ async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
 		throw new Error(`Payment failed for ${endpoint}: endpoint still returned HTTP 402.`);
 	}
 
-	// check if the response body is a valid txn string
-	const txn = responseText;
-	if (typeof txn !== "string") {
-		throw new Error(`Invalid response body for ${endpoint}: expected string, got ${typeof txn}`);
-	}
+	if (endpoint === x402Endpoint.Balance) {
+		let parsedBalance: unknown;
+		try {
+			parsedBalance = JSON.parse(responseText);
+		} catch {
+			throw new Error(
+				`Invalid response body for ${endpoint}: expected JSON payload, got ${responseText}`,
+			);
+		}
+		if (!parsedBalance || typeof parsedBalance !== "object") {
+			throw new Error(
+				`Invalid response body for ${endpoint}: expected JSON object, got ${typeof parsedBalance}`,
+			);
+		}
+	} else {
+		// check if the response body is a valid txn string
+		const txn = responseText;
+		if (typeof txn !== "string") {
+			throw new Error(`Invalid response body for ${endpoint}: expected string, got ${typeof txn}`);
+		}
 
-	// arbitrary length check for txn string
-	if (txn.length <= 25) {
-		throw new Error(`Invalid response body for ${endpoint}: expected valid txn string, got ${txn}`);
+		// arbitrary length check for txn string
+		if (txn.length <= 25) {
+			throw new Error(
+				`Invalid response body for ${endpoint}: expected valid txn string, got ${txn}`,
+			);
+		}
 	}
 
 	console.log(
@@ -192,3 +235,4 @@ async function runEndpointSmokeTest(endpoint: x402Endpoint): Promise<void> {
 
 await runEndpointSmokeTest(x402Endpoint.Deposit);
 await runEndpointSmokeTest(x402Endpoint.Withdraw);
+await runEndpointSmokeTest(x402Endpoint.Balance);
