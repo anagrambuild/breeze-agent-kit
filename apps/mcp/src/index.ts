@@ -1,25 +1,22 @@
-import { createServer } from "node:http";
+import "dotenv/config";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { registerBreezeTools } from "./tools/register-breeze-tools.js";
 
-const port = Number(process.env.PORT ?? "3500");
-const host = process.env.HOST ?? "0.0.0.0";
-
-const server = createServer((req, res) => {
-	if (req.url === "/healthz") {
-		res.writeHead(200, { "content-type": "application/json" });
-		res.end(
-			JSON.stringify({
-				status: "ok",
-				service: "mcp",
-				version: "0.0.1",
-			}),
-		);
-		return;
-	}
-
-	res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
-	res.end("mcp placeholder server");
+const server = new McpServer({
+	name: "breeze",
+	version: "1.0.0",
 });
 
-server.listen(port, host, () => {
-	console.log(`mcp server listening on http://${host}:${port}`);
+registerBreezeTools(server);
+
+async function main() {
+	const transport = new StdioServerTransport();
+	await server.connect(transport);
+	console.error("Breeze MCP Server running on stdio");
+}
+
+main().catch((error) => {
+	console.error("Fatal error:", error);
+	process.exit(1);
 });

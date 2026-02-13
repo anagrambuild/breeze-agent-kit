@@ -13,7 +13,18 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"check": "turbo check",
-		"test": "turbo test"
+		"test": "turbo test",
+		"dev:mcp": "bun run --filter mcp dev",
+		"build:mcp": "bun run --filter mcp build",
+		"start:mcp": "bun run --filter mcp start",
+		"check:mcp": "bun run --filter mcp check",
+		"test:mcp": "bun run --filter mcp test",
+		"dev:x402": "bun run --filter x402 dev",
+		"build:x402": "bun run --filter x402 build",
+		"start:x402": "bun run --filter x402 start",
+		"check:x402": "bun run --filter x402 check",
+		"test:x402": "bun run --filter x402 test",
+		"e2e:x402": "bun run --filter x402 e2e"
 	},
 	"devDependencies": {
 		"oxlint": "^1.0.0",
