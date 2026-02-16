@@ -50,3 +50,4 @@ Standalone example agents in `apps/examples/`. Each has its own `package.json` a
 
 - `apps/examples/agent-using-breeze-mcp-server`: Claude agent that talks to Breeze through the MCP server over stdio
 - `apps/examples/agent-using-raw-breeze-functionality`: Claude agent that uses the Breeze SDK directly
+- `apps/examples/agent-using-402`: x402 payment-gated API example that deposits, withdraws, and checks balances with automatic USDC micropayments
