@@ -1,8 +1,4 @@
-"use client";
-
-import { useState } from "react";
-
-const skillMarkdown = `---
+---
 name: breeze-x402-payment-api
 description: Interact with the Breeze yield aggregator through the x402 payment-gated HTTP API. Use when the user wants to check DeFi balances, deposit tokens, withdraw tokens, or manage Solana yield positions via x402 micropayments.
 ---
@@ -14,24 +10,24 @@ This skill enables interaction with [Breeze](https://breeze.baby), a Solana yiel
 ## Prerequisites
 
 - A Solana wallet with USDC for x402 micropayments
-- An x402-compatible API server (default: \`https://x402.breeze.baby\`)
+- An x402-compatible API server (default: `https://x402.breeze.baby`)
 - Node.js / TypeScript environment
 
 ## Dependencies
 
-\`\`\`
+```
 @faremeter/fetch        — wraps fetch with automatic x402 payment handling
 @faremeter/payment-solana — Solana payment handler for x402
 @faremeter/wallet-solana  — local wallet abstraction
 @scure/base             — base58 encoding/decoding
 @solana/web3.js         — Solana transaction signing and sending
-\`\`\`
+```
 
 ## Setup: Payment-Wrapped Fetch
 
-All API calls use a payment-wrapped \`fetch\` that automatically handles x402 challenges (HTTP 402 → sign payment → retry with proof):
+All API calls use a payment-wrapped `fetch` that automatically handles x402 challenges (HTTP 402 → sign payment → retry with proof):
 
-\`\`\`typescript
+```typescript
 import { wrap } from "@faremeter/fetch";
 import { createPaymentHandler } from "@faremeter/payment-solana/exact";
 import { createLocalWallet } from "@faremeter/wallet-solana";
@@ -45,37 +41,37 @@ const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 const paymentHandler = createPaymentHandler(wallet, USDC_MINT, connection);
 
 const fetchWithPayment = wrap(fetch, { handlers: [paymentHandler] });
-\`\`\`
+```
 
 ## API Endpoints
 
 ### Check Balance
 
-\`\`\`
+```
 GET /balance/:fund_user
-\`\`\`
+```
 
-Returns JSON with positions, deposited amounts, yield earned, and APY. Values are in **base units** — divide by \`10^decimals\` for human-readable amounts (e.g. USDC has 6 decimals).
+Returns JSON with positions, deposited amounts, yield earned, and APY. Values are in **base units** — divide by `10^decimals` for human-readable amounts (e.g. USDC has 6 decimals).
 
-\`\`\`typescript
+```typescript
 const response = await fetchWithPayment(
-  \\\`\${API_URL}/balance/\${encodeURIComponent(walletPublicKey)}\\\`,
+  `${API_URL}/balance/${encodeURIComponent(walletPublicKey)}`,
   { method: "GET" }
 );
 const balances = await response.json();
-\`\`\`
+```
 
 ### Deposit
 
-\`\`\`
+```
 POST /deposit
 Content-Type: application/json
-\`\`\`
+```
 
-Builds an unsigned deposit transaction. The \`amount\` must be in **base units**.
+Builds an unsigned deposit transaction. The `amount` must be in **base units**.
 
-\`\`\`typescript
-const response = await fetchWithPayment(\\\`\${API_URL}/deposit\\\`, {
+```typescript
+const response = await fetchWithPayment(`${API_URL}/deposit`, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
@@ -86,19 +82,19 @@ const response = await fetchWithPayment(\\\`\${API_URL}/deposit\\\`, {
   }),
 });
 const txString = await response.text(); // encoded unsigned transaction
-\`\`\`
+```
 
 ### Withdraw
 
-\`\`\`
+```
 POST /withdraw
 Content-Type: application/json
-\`\`\`
+```
 
 Builds an unsigned withdrawal transaction. Supports optional WSOL handling flags.
 
-\`\`\`typescript
-const response = await fetchWithPayment(\\\`\${API_URL}/withdraw\\\`, {
+```typescript
+const response = await fetchWithPayment(`${API_URL}/withdraw`, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
@@ -115,29 +111,29 @@ const response = await fetchWithPayment(\\\`\${API_URL}/withdraw\\\`, {
   }),
 });
 const txString = await response.text();
-\`\`\`
+```
 
 **Withdraw parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| \`amount\` | number | yes | Amount in base units |
-| \`user_key\` | string | yes | User's Solana public key |
-| \`strategy_id\` | string | yes | Breeze strategy ID |
-| \`base_asset\` | string | yes | Token mint address |
-| \`all\` | boolean | no | Withdraw entire position |
-| \`exclude_fees\` | boolean | no | Exclude fees from amount (recommended: \`true\`) |
-| \`unwrap_wsol_ata\` | boolean | no | Unwrap WSOL to native SOL after withdraw |
-| \`create_wsol_ata\` | boolean | no | Create WSOL ATA if it doesn't exist |
-| \`detect_wsol_ata\` | boolean | no | Auto-detect WSOL ATA and set flags accordingly |
+| `amount` | number | yes | Amount in base units |
+| `user_key` | string | yes | User's Solana public key |
+| `strategy_id` | string | yes | Breeze strategy ID |
+| `base_asset` | string | yes | Token mint address |
+| `all` | boolean | no | Withdraw entire position |
+| `exclude_fees` | boolean | no | Exclude fees from amount (recommended: `true`) |
+| `unwrap_wsol_ata` | boolean | no | Unwrap WSOL to native SOL after withdraw |
+| `create_wsol_ata` | boolean | no | Create WSOL ATA if it doesn't exist |
+| `detect_wsol_ata` | boolean | no | Auto-detect WSOL ATA and set flags accordingly |
 
-**WSOL handling:** When withdrawing wrapped SOL (\`So11111111111111111111111111111111111111112\`), pass \`unwrap_wsol_ata: true\` to receive native SOL instead.
+**WSOL handling:** When withdrawing wrapped SOL (`So11111111111111111111111111111111111111112`), pass `unwrap_wsol_ata: true` to receive native SOL instead.
 
 ## Signing and Sending Transactions
 
 The deposit and withdraw endpoints return encoded unsigned transactions. Sign and send them:
 
-\`\`\`typescript
+```typescript
 import { VersionedTransaction, Transaction } from "@solana/web3.js";
 
 function extractTransactionString(responseText: string): string {
@@ -170,70 +166,39 @@ async function signAndSend(txString: string) {
     return sig;
   }
 }
-\`\`\`
+```
 
 ## Supported Tokens
 
 | Token | Mint | Decimals |
 |-------|------|----------|
-| USDC | \`EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\` | 6 |
-| USDT | \`Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\` | 6 |
-| USDS | \`USDSwr9ApdHk5bvJKMjzff41FfuX8bSxdKcR81vTwcA\` | 6 |
-| SOL | \`So11111111111111111111111111111111111111112\` | 9 |
-| JitoSOL | \`J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn\` | 9 |
-| mSOL | \`mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So\` | 9 |
-| JupSOL | \`jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v\` | 9 |
-| JLP | \`27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4\` | 6 |
+| USDC | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | 6 |
+| USDT | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` | 6 |
+| USDS | `USDSwr9ApdHk5bvJKMjzff41FfuX8bSxdKcR81vTwcA` | 6 |
+| SOL | `So11111111111111111111111111111111111111112` | 9 |
+| JitoSOL | `J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn` | 9 |
+| mSOL | `mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So` | 9 |
+| JupSOL | `jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v` | 9 |
+| JLP | `27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4` | 6 |
 
 ## Environment Variables
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| \`WALLET_PRIVATE_KEY\` | yes | — | Base58-encoded Solana private key |
-| \`STRATEGY_ID\` | yes | — | Breeze strategy ID |
-| \`X402_API_URL\` | no | \`https://x402.breeze.baby\` | x402 payment API URL |
-| \`SOLANA_RPC_URL\` | no | \`https://api.mainnet-beta.solana.com\` | Solana RPC endpoint |
-| \`BASE_ASSET\` | no | USDC mint | Default token mint for operations |
+| `WALLET_PRIVATE_KEY` | yes | — | Base58-encoded Solana private key |
+| `STRATEGY_ID` | yes | — | Breeze strategy ID |
+| `X402_API_URL` | no | `https://x402.breeze.baby` | x402 payment API URL |
+| `SOLANA_RPC_URL` | no | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint |
+| `BASE_ASSET` | no | USDC mint | Default token mint for operations |
 
 ## Example: Full Agent Workflow
 
 A typical deposit flow:
 
-1. **Check balance** → \`GET /balance/:wallet\` (paid via x402)
-2. **Build deposit tx** → \`POST /deposit\` with amount in base units (paid via x402)
+1. **Check balance** → `GET /balance/:wallet` (paid via x402)
+2. **Build deposit tx** → `POST /deposit` with amount in base units (paid via x402)
 3. **Extract transaction** from response text
 4. **Sign and send** the transaction to Solana
-5. **Report** the transaction signature and explorer link (\`https://solscan.io/tx/{sig}\`)
+5. **Report** the transaction signature and explorer link (`https://solscan.io/tx/{sig}`)
 
-See \`apps/examples/agent-using-x402-payment-api/\` for a complete working implementation with a Claude-powered agentic loop.
-
-`;
-
-function CopyButton({ text }: { text: string }) {
-	const [copied, setCopied] = useState(false);
-
-	return (
-		<button
-			onClick={async () => {
-				await navigator.clipboard.writeText(text);
-				setCopied(true);
-				setTimeout(() => setCopied(false), 1500);
-			}}
-			className="cursor-pointer border border-border px-2 py-1 text-xs hover:bg-[#111] transition-colors"
-		>
-			{copied ? "copied" : "copy"}
-		</button>
-	);
-}
-
-export function SkillIntegrationTab() {
-	return (
-		<div>
-			<div className="flex items-center justify-between mb-4">
-				<p className="text-sm text-dim">Skill config for agent frameworks.</p>
-				<CopyButton text={skillMarkdown} />
-			</div>
-			<pre className="whitespace-pre-wrap">{skillMarkdown}</pre>
-		</div>
-	);
-}
+See `apps/examples/agent-using-x402-payment-api/` for a complete working implementation with a Claude-powered agentic loop.
