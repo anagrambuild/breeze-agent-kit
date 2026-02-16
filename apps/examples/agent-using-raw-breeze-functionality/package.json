@@ -1,22 +1,21 @@
 {
-  "name": "agent-using-raw-breeze-functionality",
-  "version": "1.0.0",
-  "description": "Autonomous Solana DeFi agent for Breeze yield aggregator",
-  "type": "module",
-  "scripts": {
-    "start": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
-    "@breezebaby/breeze-sdk": "^2.0.3",
-    "@solana/web3.js": "^1.98.0",
-    "bs58": "^5.0.0",
-    "dotenv": "^16.4.7"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.8.0"
-  }
+	"name": "agent-using-raw-breeze-functionality",
+	"version": "1.0.0",
+	"description": "Autonomous Solana DeFi agent for Breeze yield aggregator",
+	"type": "module",
+	"scripts": {
+		"start": "bun run src/index.ts",
+		"dev": "bun --watch src/index.ts"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.39.0",
+		"@breezebaby/breeze-sdk": "^2.0.3",
+		"@solana/web3.js": "^1.98.0",
+		"bs58": "^5.0.0",
+		"dotenv": "^16.4.7"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.0",
+		"typescript": "^5.8.0"
+	}
 }

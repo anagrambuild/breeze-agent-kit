@@ -24,7 +24,11 @@
 		"start:x402": "bun run --filter x402 start",
 		"check:x402": "bun run --filter x402 check",
 		"test:x402": "bun run --filter x402 test",
-		"e2e:x402": "bun run --filter x402 e2e"
+		"e2e:x402": "bun run --filter x402 e2e",
+		"dev:website": "bun run --filter website dev",
+		"build:website": "bun run --filter website build",
+		"start:website": "bun run --filter website start",
+		"check:website": "bun run --filter website check"
 	},
 	"devDependencies": {
 		"oxlint": "^1.0.0",
