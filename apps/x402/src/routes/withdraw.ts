@@ -12,6 +12,10 @@ const withdrawInput = z.object({
 	base_asset: z.string().min(1),
 	amount: z.number().positive(),
 	all: z.boolean().optional(),
+	create_wsol_ata: z.boolean().optional(),
+	unwrap_wsol_ata: z.boolean().optional(),
+	detect_wsol_ata: z.boolean().optional(),
+	exclude_fees: z.boolean().optional(),
 });
 
 withdraw.post(
@@ -21,16 +25,19 @@ withdraw.post(
 		upstreamPath: "/agent/withdraw/tx",
 		buildPayload: async (c) => {
 			const body = (await c.req.json()) as z.infer<typeof withdrawInput>;
-			return {
-				params: {
-					user_key: body.user_key,
-					payer_key: body.payer_key,
-					strategy_id: body.strategy_id,
-					base_asset: body.base_asset,
-					amount: body.amount,
-					all: body.all ?? false,
-				},
+			const params: Record<string, unknown> = {
+				user_key: body.user_key,
+				payer_key: body.payer_key,
+				strategy_id: body.strategy_id,
+				base_asset: body.base_asset,
+				amount: body.amount,
+				all: body.all ?? false,
 			};
+			if (body.create_wsol_ata !== undefined) params.create_wsol_ata = body.create_wsol_ata;
+			if (body.unwrap_wsol_ata !== undefined) params.unwrap_wsol_ata = body.unwrap_wsol_ata;
+			if (body.detect_wsol_ata !== undefined) params.detect_wsol_ata = body.detect_wsol_ata;
+			if (body.exclude_fees !== undefined) params.exclude_fees = body.exclude_fees;
+			return { params };
 		},
 	}),
 );

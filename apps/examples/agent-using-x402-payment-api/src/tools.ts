@@ -163,12 +163,17 @@ async function handleWithdraw(
   const token = resolveToken(tokenSymbol);
   const baseUnits = amount && !all ? toBaseUnits(amount, token.decimals) : 0;
 
+  const WSOL_MINT = "So11111111111111111111111111111111111111112";
+  const isWsol = token.mint === WSOL_MINT;
+
   const responseText = await withdraw({
     amount: baseUnits || 0,
     user_key: walletPublicKey,
     strategy_id: config.strategyId,
     base_asset: token.mint,
     all: all || false,
+    exclude_fees: true,
+    ...(isWsol && { unwrap_wsol_ata: true }),
   });
 
   const txString = extractTransactionString(responseText);

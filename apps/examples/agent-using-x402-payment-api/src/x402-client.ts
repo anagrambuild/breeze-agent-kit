@@ -49,6 +49,8 @@ export async function withdraw(params: {
   strategy_id: string;
   base_asset: string;
   all?: boolean;
+  unwrap_wsol_ata?: boolean;
+  exclude_fees?: boolean;
 }): Promise<string> {
   const url = `${apiBaseUrl}/withdraw`;
   const response = await fetchWithPayment(url, {
