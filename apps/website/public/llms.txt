@@ -1,0 +1,35 @@
+# Breeze Agent Kit
+
+> Solana yield strategies for AI agents.
+
+Breeze Agent Kit lets AI agents deposit, withdraw, and check balances across Solana DeFi yield strategies. It supports multiple integration methods so agents can interact however suits their architecture.
+
+## Integration Methods
+
+### MCP (Model Context Protocol)
+Stdio-based MCP server exposing tools: get_strategy_info, check_balances, get_deposit_tx, get_withdraw_tx, sign_and_send_tx. Works with Claude Desktop, Cursor, and any MCP-compatible client.
+
+### x402 (HTTP Payment Protocol)
+Hono HTTP service at /deposit, /withdraw, /balance gated behind x402 USDC micropayments. Agents pay-per-call with no API keys needed.
+
+### Skill (Cross-Model)
+Reusable Breeze skill for agent workflows across Claude, GPT, Cursor, and other compatible clients.
+
+### Openclaw
+Integration path for the Clawbot/Openclaw ecosystem, with Breeze skill distribution via Clawhub.
+
+## Supported Tokens
+- USDC (6 decimals)
+- SOL (9 decimals)
+- JitoSOL (9 decimals)
+- mSOL (9 decimals)
+- JupSOL (9 decimals)
+- USDT (6 decimals)
+- USDS (6 decimals)
+- JLP (6 decimals)
+
+## Links
+- Website: https://agent.breeze.baby
+- GitHub: https://github.com/anagrambuild/breeze-agent-kit
+- Breeze Portal: https://try.breeze.baby
+- Breeze: https://www.breeze.baby

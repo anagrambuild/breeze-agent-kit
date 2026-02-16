@@ -1,8 +1,30 @@
 import { IntegrationTabs } from "@/components/integration-tabs";
+import { SITE_URL } from "@/constants";
+
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	name: "Breeze Agent Kit",
+	description:
+		"Solana yield strategies for AI agents. Deposit, withdraw, and check balances via MCP, x402, or direct SDK integration.",
+	url: SITE_URL,
+	applicationCategory: "DeveloperApplication",
+	operatingSystem: "Any",
+	offers: {
+		"@type": "Offer",
+		price: "0",
+		priceCurrency: "USD",
+	},
+};
 
 export default function Home() {
 	return (
 		<main className="mx-auto max-w-2xl px-6 py-16 md:py-24">
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+			/>
+
 			{/* Header */}
 			<header className="mb-16">
 				<h1 className="text-3xl font-bold tracking-tight md:text-4xl">Breeze Agent Kit</h1>
