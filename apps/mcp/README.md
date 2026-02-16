@@ -101,13 +101,17 @@ Use that exact absolute path in Claude config.
    `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 ```json
-{
-	"mcpServers": {
-		"breeze": {
-			"command": "/ABSOLUTE/PATH/FROM/WHICH_BUN",
-			"args": ["--cwd", "/ABSOLUTE/PATH/TO/breeze-agent-kit/apps/mcp", "dist/index.js"]
-		}
-	}
+"breeze": {
+      "command": "node",
+      "args": [
+        "path-to-the-folder/breeze-mcp-server/build/index.js"
+      ],
+      "env": {
+        "BREEZE_API_KEY": "your-breeze-api-key",
+        "BREEZE_STRATEGY_ID": "strategy-id",
+        "WALLET_PRIVATE_KEY": "your-private-key",
+        "SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com"
+      }
 }
 ```
 
