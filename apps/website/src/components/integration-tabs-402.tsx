@@ -126,7 +126,7 @@ const { ok, tx } = await res.json();`}</pre>
 						["500", "Upstream API error"],
 					].map(([code, desc]) => (
 						<tr key={code} className="border-b border-border">
-							<td className="py-1.5 pr-4 text-pink whitespace-nowrap">{code}</td>
+							<td className="py-1.5 pr-4 text-pink sm:whitespace-nowrap">{code}</td>
 							<td className="py-1.5 text-dim">{desc}</td>
 						</tr>
 					))}

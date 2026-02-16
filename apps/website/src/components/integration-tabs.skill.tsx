@@ -233,7 +233,7 @@ export function SkillIntegrationTab() {
 				<p className="text-sm text-dim">Skill config for agent frameworks.</p>
 				<CopyButton text={skillMarkdown} />
 			</div>
-			<pre className="whitespace-pre-wrap">{skillMarkdown}</pre>
+			<pre className="whitespace-pre-wrap break-words">{skillMarkdown}</pre>
 		</div>
 	);
 }

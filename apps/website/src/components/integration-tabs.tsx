@@ -31,12 +31,12 @@ export function IntegrationTabs() {
 
 	return (
 		<section className="mb-16">
-			<div className="flex gap-0 border-b border-border mb-6">
+			<div className="-mx-6 px-6 flex overflow-x-auto border-b border-border mb-6 scrollbar-none">
 				{tabs.map((tab) => (
 					<button
 						key={tab}
 						onClick={() => switchTab(tab)}
-						className={`cursor-pointer px-4 py-2 text-sm font-bold transition-colors ${
+						className={`cursor-pointer shrink-0 px-4 py-3 text-sm font-bold transition-colors ${
 							active === tab ? "text-pink border-b-2 border-pink -mb-px" : "text-dim hover:text-fg"
 						}`}
 					>

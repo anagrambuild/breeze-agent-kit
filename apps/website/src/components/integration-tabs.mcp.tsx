@@ -108,7 +108,7 @@ bun install && bun run build:mcp`}</pre>
 						["sign_and_send_tx", "Sign + broadcast a base64 transaction"],
 					].map(([name, desc]) => (
 						<tr key={name} className="border-b border-border">
-							<td className="py-1.5 pr-4 text-pink whitespace-nowrap">{name}</td>
+							<td className="py-1.5 pr-4 text-pink sm:whitespace-nowrap">{name}</td>
 							<td className="py-1.5 text-dim">{desc}</td>
 						</tr>
 					))}
