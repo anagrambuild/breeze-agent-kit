@@ -34,9 +34,19 @@ bun run dev:mcp
 bun run check:mcp
 bun run dev:x402
 bun run check:x402
+bun run dev:website
+bun run build:website
 ```
 
 ## Apps
 
-- `apps/x402`: x402 payment wall service (Hono + Solana tooling)
 - `apps/mcp`: Breeze MCP stdio server for strategy info, balances, tx creation, and signing/sending on Solana
+- `apps/x402`: x402 payment wall service (Hono + Solana tooling)
+- `apps/website`: Marketing / docs site (Next.js + Tailwind CSS)
+
+## Examples
+
+Standalone example agents in `apps/examples/`. Each has its own `package.json` and README:
+
+- `apps/examples/agent-using-breeze-mcp-server`: Claude agent that talks to Breeze through the MCP server over stdio
+- `apps/examples/agent-using-raw-breeze-functionality`: Claude agent that uses the Breeze SDK directly
