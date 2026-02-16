@@ -5,7 +5,7 @@ import { tabs, hashToTab, tabToHash, type Tab } from "./integration-tabs.constan
 import { McpIntegrationTab } from "./integration-tabs.mcp";
 import { X402IntegrationTab } from "./integration-tabs-402";
 import { SkillIntegrationTab } from "./integration-tabs.skill";
-import { OpenclawIntegrationTab } from "./integration-tabs.openclaw";
+import { ClawhubIntegrationTab } from "./integration-tabs.clawhub";
 
 export function IntegrationTabs() {
 	const [active, setActive] = useState<Tab>(() => {
@@ -48,7 +48,7 @@ export function IntegrationTabs() {
 			{active === "MCP" && <McpIntegrationTab />}
 			{active === "402" && <X402IntegrationTab />}
 			{active === "Skill" && <SkillIntegrationTab />}
-			{active === "Openclaw" && <OpenclawIntegrationTab />}
+			{active === "ClawHub" && <ClawhubIntegrationTab />}
 		</section>
 	);
 }

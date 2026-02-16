@@ -5,7 +5,7 @@ Landing page and integration docs for [Breeze Agent Kit](https://github.com/anag
 - **MCP** — stdio server setup for Claude Desktop, Cursor, etc.
 - **402** — payment-gated HTTP API using the x402 protocol
 - **Skill** — skill config for agent frameworks
-- **Openclaw** — one-command install via Clawhub
+- **ClawHub** — one-command install via `npx clawhub@latest install breeze`
 
 ## Stack
 

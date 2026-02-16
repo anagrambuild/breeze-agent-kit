@@ -15,8 +15,8 @@ Hono HTTP service at /deposit, /withdraw, /balance gated behind x402 USDC microp
 ### Skill (Cross-Model)
 Reusable Breeze skill for agent workflows across Claude, GPT, Cursor, and other compatible clients.
 
-### Openclaw
-Integration path for the Clawbot/Openclaw ecosystem, with Breeze skill distribution via Clawhub.
+### ClawHub
+Install the Breeze skill with one command: `npx clawhub@latest install breeze`. Gives Claude Code the ability to automate yield on Solana assets via the x402 payment API.
 
 ## Supported Tokens
 - USDC (6 decimals)
