@@ -1,0 +1,21 @@
+{
+	"name": "agent-using-402",
+	"version": "1.0.0",
+	"description": "x402 payment-gated API example for Breeze yield aggregator",
+	"type": "module",
+	"scripts": {
+		"start": "bun run src/index.ts",
+		"dev": "bun --watch src/index.ts"
+	},
+	"dependencies": {
+		"@faremeter/fetch": "^0.16.0",
+		"@faremeter/payment-solana": "^0.16.0",
+		"@faremeter/wallet-solana": "^0.16.0",
+		"@scure/base": "^1.2.0",
+		"@solana/web3.js": "^1.98.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.0",
+		"typescript": "^5.8.0"
+	}
+}

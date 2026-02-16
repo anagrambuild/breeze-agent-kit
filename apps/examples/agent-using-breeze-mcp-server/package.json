@@ -1,20 +1,19 @@
 {
-  "name": "agent-using-breeze-mcp-server",
-  "version": "1.0.0",
-  "description": "Autonomous Solana DeFi agent for Breeze yield aggregator (MCP-based)",
-  "type": "module",
-  "scripts": {
-    "start": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
-    "@modelcontextprotocol/sdk": "^1.26.0",
-    "dotenv": "^16.4.7"
-  },
-  "devDependencies": {
-    "@types/node": "^22.15.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.8.0"
-  }
+	"name": "agent-using-breeze-mcp-server",
+	"version": "1.0.0",
+	"description": "Autonomous Solana DeFi agent for Breeze yield aggregator (MCP-based)",
+	"type": "module",
+	"scripts": {
+		"start": "bun run src/index.ts",
+		"dev": "bun --watch src/index.ts"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.39.0",
+		"@modelcontextprotocol/sdk": "^1.26.0",
+		"dotenv": "^16.4.7"
+	},
+	"devDependencies": {
+		"@types/node": "^22.15.0",
+		"typescript": "^5.8.0"
+	}
 }
