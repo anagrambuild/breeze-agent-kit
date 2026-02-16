@@ -214,13 +214,15 @@ export function registerBreezeTools(server: McpServer): void {
 				if (!withdrawAll && amount === undefined) {
 					throw new Error("Amount is required when all is false");
 				}
-
+				const unwrapWsolAta = token.mint === "So11111111111111111111111111111111111111112"
 				const options: Parameters<typeof sdk.createWithdrawTransaction>[0] = {
 					strategyId: STRATEGY_ID,
 					baseAsset: token.mint,
 					userKey: walletPublicKey,
 					payerKey: walletPublicKey,
 					all: withdrawAll,
+					excludeFees: true,
+					unwrapWsolAta,
 				};
 
 				let message: string;
