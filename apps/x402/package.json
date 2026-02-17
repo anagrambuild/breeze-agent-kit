@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@faremeter/fetch": "^0.16.0",
+		"@logtape/logtape": "^1.0.4",
 		"@faremeter/info": "^0.16.0",
 		"@faremeter/middleware": "^0.16.0",
 		"@faremeter/payment-solana": "^0.16.0",
