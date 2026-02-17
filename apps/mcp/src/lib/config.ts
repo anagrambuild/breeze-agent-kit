@@ -18,6 +18,16 @@ export const SOLANA_RPC_URL =
 	process.env.SOLANA_RPC_URL?.trim() || "https://api.mainnet-beta.solana.com";
 
 export const sdk = new BreezeSDK({ apiKey: BREEZE_API_KEY });
+
+// Inject isAgent: true into deposit/withdraw API calls without modifying the SDK
+const apiClient = (sdk as any).apiClient;
+const originalRequest = apiClient.request.bind(apiClient);
+apiClient.request = (endpoint: string, method: string, options: any) => {
+	if ((endpoint === "deposit/tx" || endpoint === "withdraw/tx") && options?.body?.params) {
+		options.body.params.is_agent = true;
+	}
+	return originalRequest(endpoint, method, options);
+};
 export const connection = new Connection(SOLANA_RPC_URL, "confirmed");
 
 export let keypair: Keypair;
