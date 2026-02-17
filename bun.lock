@@ -58,6 +58,7 @@
         "@faremeter/middleware": "^0.16.0",
         "@faremeter/payment-solana": "^0.16.0",
         "@faremeter/wallet-solana": "^0.16.0",
+        "@hono/node-server": "^1.19.9",
         "@hono/zod-validator": "^0.7.6",
         "@logtape/logtape": "^1.0.4",
         "@scure/base": "^2.0.0",
