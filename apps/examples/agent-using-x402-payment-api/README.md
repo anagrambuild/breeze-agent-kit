@@ -24,13 +24,7 @@ USDC, USDT, USDS, SOL, JitoSOL, mSOL, JupSOL, JLP
 
 ## Prerequisites
 
-The x402 payment server must be running:
-
-```bash
-cd apps/x402
-cp .env.example .env  # configure server env vars
-bun run dev
-```
+Uses the hosted x402 server at `https://x402.breeze.baby` by default. To run locally instead, set `X402_API_URL=http://127.0.0.1:3402` and start the local server (`cd apps/x402 && bun run dev`).
 
 ## Setup
 
@@ -45,7 +39,7 @@ Fill in `.env`:
 ANTHROPIC_API_KEY=your-anthropic-api-key
 WALLET_PRIVATE_KEY=your-base58-solana-private-key
 STRATEGY_ID=your-strategy-id
-X402_API_URL=http://127.0.0.1:3402
+X402_API_URL=https://x402.breeze.baby
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ```
 

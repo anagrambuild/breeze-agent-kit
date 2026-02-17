@@ -2,7 +2,7 @@ const SOLANA_NETWORK = "mainnet-beta";
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
 const USDC_MAINNET_MINT =
 	process.env.USDC_MAINNET_MINT || "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
-const API_URL = process.env.API_URL || "http://127.0.0.1:3402";
+const API_URL = process.env.API_URL || "https://x402.breeze.baby";
 
 function firstDefined(...values: Array<string | undefined>): string | undefined {
 	for (const value of values) {

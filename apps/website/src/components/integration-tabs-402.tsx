@@ -4,7 +4,7 @@ export function X402IntegrationTab() {
 	return (
 		<div>
 			<p className="text-sm text-dim mb-6">
-				Payment-gated HTTP API at <code className="text-pink">agent.breeze.baby</code>. No API keys
+				Payment-gated HTTP API at <code className="text-pink">x402.breeze.baby</code>. No API keys
 				- agents pay a micro USDC fee per request using the{" "}
 				<a href="https://www.faremeter.com">x402 protocol</a>.
 			</p>
@@ -15,7 +15,7 @@ export function X402IntegrationTab() {
 					<span className="text-pink font-bold shrink-0">1.</span>
 					<span>
 						Agent sends <code className="text-pink">POST /deposit</code> to{" "}
-						<code>agent.breeze.baby</code>
+						<code>x402.breeze.baby</code>
 					</span>
 				</div>
 				<div className="flex gap-3">
@@ -57,7 +57,7 @@ const wallet = new KeypairWallet(yourSolanaKeypair);
 const payment = new SolanaPaymentHandler(wallet);
 
 const res = await fetchWithPayment(
-  "https://agent.breeze.baby/deposit",
+  "https://x402.breeze.baby/deposit",
   { method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

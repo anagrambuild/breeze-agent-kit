@@ -30,7 +30,7 @@ Fill in `.env`:
 ```
 SOLANA_PRIVATE_KEY=your-base58-solana-private-key
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
-API_URL=http://127.0.0.1:3402
+API_URL=https://x402.breeze.baby
 STRATEGY_ID=43620ba3-354c-456b-aa3c-5bf7fa46a6d4
 BASE_ASSET=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 DEPOSIT_AMOUNT=10000
@@ -52,7 +52,7 @@ bun start
 | -------------------- | ------------------------------------- | ---------------------------------------------- |
 | `SOLANA_PRIVATE_KEY` | (required)                            | Base58-encoded Solana private key              |
 | `SOLANA_RPC_URL`     | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint                            |
-| `API_URL`            | `http://127.0.0.1:3402`               | x402 API base URL                              |
+| `API_URL`            | `https://x402.breeze.baby`            | x402 API base URL                              |
 | `STRATEGY_ID`        | `""`                                  | Breeze strategy ID                             |
 | `BASE_ASSET`         | USDC mint                             | Token mint address                             |
 | `DEPOSIT_AMOUNT`     | `10000`                               | Deposit amount in base units                   |
