@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const loadingText = "Loading skill...";
-const missingText = "Skill file not found. Expected apps/skills/breeze-x402-payment-api/SKILL.md.";
+const missingText = "Skill file not found. Expected /skills/breeze-x402-payment-api/SKILL.md.";
 
 function SkillCopyButton({ text }: { text: string }) {
 	const [copied, setCopied] = useState(false);
@@ -30,7 +30,9 @@ export function SkillIntegrationTab() {
 
 		const loadSkill = async () => {
 			try {
-				const response = await fetch("/api/skill-markdown", { cache: "no-store" });
+				const response = await fetch("/skills/breeze-x402-payment-api/SKILL.md", {
+					cache: "force-cache",
+				});
 				if (!response.ok) {
 					throw new Error(`failed to load skill (${response.status})`);
 				}
