@@ -5,15 +5,48 @@ export function McpIntegrationTab() {
 				Stdio server exposing 5 tools to any MCP-compatible client (Claude Desktop, Cursor, etc).
 			</p>
 
+			<h3 className="text-sm font-bold mb-3">Before you start (2 min)</h3>
+			<div className="text-sm mb-6 space-y-3">
+				<div className="flex gap-3">
+					<span className="text-pink font-bold shrink-0">1.</span>
+					<div>
+						<p>Install Bun (fastest path):</p>
+						<pre className="mt-1.5">{`# macOS / Linux
+curl -fsSL https://bun.sh/install | bash
+
+# Windows (PowerShell)
+powershell -c "irm bun.sh/install.ps1 | iex"`}</pre>
+					</div>
+				</div>
+				<div className="flex gap-3">
+					<span className="text-pink font-bold shrink-0">2.</span>
+					<div>
+						<p>
+							Open a new terminal and run <code className="text-pink">bun --version</code>. If
+							you see a version number, you are good.
+						</p>
+					</div>
+				</div>
+				<div className="flex gap-3">
+					<span className="text-pink font-bold shrink-0">3.</span>
+					<div>
+						<p>
+							Make sure Git is installed: <code className="text-pink">git --version</code>. If
+							not, install from <a href="https://git-scm.com/downloads">git-scm.com/downloads</a>.
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<h3 className="text-sm font-bold mb-3">Setup</h3>
 			<div className="text-sm mb-6 space-y-3">
 				<div className="flex gap-3">
 					<span className="text-pink font-bold shrink-0">1.</span>
 					<div>
-						<p>Clone and build the MCP server</p>
+						<p>Clone the repo and install dependencies:</p>
 						<pre className="mt-1.5">{`git clone https://github.com/anagrambuild/breeze-agent-kit
 cd breeze-agent-kit
-bun install && bun run build:mcp`}</pre>
+bun install`}</pre>
 					</div>
 				</div>
 				<div className="flex gap-3">
@@ -52,12 +85,15 @@ bun install && bun run build:mcp`}</pre>
 				<div className="flex gap-3">
 					<span className="text-pink font-bold shrink-0">5.</span>
 					<div>
-						<p>Add the Breeze MCP server (replace the paths and keys with yours):</p>
+						<p>
+							Add the Breeze MCP server (replace path and keys). This runs directly with{" "}
+							<code className="text-pink">bun</code>, so no build step needed:
+						</p>
 						<pre className="mt-1.5">{`{
   "mcpServers": {
     "breeze": {
-      "command": "node",
-      "args": ["/absolute/path/to/breeze-agent-kit/apps/mcp/dist/index.js"],
+      "command": "bun",
+      "args": ["run", "/absolute/path/to/breeze-agent-kit/apps/mcp/src/index.ts"],
       "env": {
         "BREEZE_API_KEY": "your-api-key",
         "WALLET_PRIVATE_KEY": "your-base58-private-key",
@@ -81,8 +117,8 @@ bun install && bun run build:mcp`}</pre>
 
 			<h3 className="text-sm font-bold mb-3">Cursor / other MCP clients</h3>
 			<p className="text-xs text-dim mb-2">
-				Same config, different file. For Cursor, add to <code>.cursor/mcp.json</code> in your
-				project root. You can also use <code>bun</code> directly instead of building first:
+				Same config, different file. For Cursor, put this in{" "}
+				<code>.cursor/mcp.json</code> in your project root:
 			</p>
 			<pre className="mb-6">{`{
   "mcpServers": {
