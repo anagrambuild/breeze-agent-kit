@@ -1,0 +1,17 @@
+# Deny all
+*
+
+# Root config files needed for bun install
+!package.json
+!bun.lock
+!bunfig.toml
+!tsconfig.json
+
+# Workspace package.json files (needed for lockfile resolution)
+!apps/mcp/package.json
+!apps/website/package.json
+!apps/x402/package.json
+
+# x402 source
+!apps/x402/src/
+!apps/x402/tsconfig.json

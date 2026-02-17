@@ -1,0 +1,104 @@
+name: x402 Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/x402/**"
+      - "package.json"
+      - "bun.lock"
+      - ".github/workflows/x402-release.yml"
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: breeze-agent-kit-x402
+
+jobs:
+  ci:
+    name: Lint, Typecheck, Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.1"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run check:x402
+
+      - name: Test
+        run: bun run test:x402
+
+  build-and-push:
+    name: Build & Push Docker Image
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image_tag: ${{ steps.tags.outputs.sha_tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Breeze.AgentKit.CI
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Compute image tags
+        id: tags
+        run: |
+          SHA_TAG="sha-${GITHUB_SHA::7}"
+          echo "sha_tag=${SHA_TAG}" >> "$GITHUB_OUTPUT"
+          echo "full_image=${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${SHA_TAG}" >> "$GITHUB_OUTPUT"
+          echo "latest_image=${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/x402/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.tags.outputs.full_image }}
+            ${{ steps.tags.outputs.latest_image }}
+          cache-from: type=gha,scope=x402,ignore-error=true
+          cache-to: type=gha,mode=max,scope=x402,ignore-error=true
+          platforms: linux/amd64
+
+  trigger-deploy:
+    name: Trigger Deploy
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch to breeze-infra
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.INFRA_DISPATCH_TOKEN }}
+          repository: anagrambuild/breeze-infra
+          event-type: x402-deploy
+          client-payload: '{"image_tag": "${{ needs.build-and-push.outputs.image_tag }}", "sha": "${{ github.sha }}"}'
