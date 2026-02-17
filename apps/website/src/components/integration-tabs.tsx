@@ -46,7 +46,7 @@ export function IntegrationTabs() {
 			</div>
 
 			{active === "MCP" && <McpIntegrationTab />}
-			{active === "402" && <X402IntegrationTab />}
+			{active === "x402" && <X402IntegrationTab />}
 			{active === "Skill" && <SkillIntegrationTab />}
 			{active === "ClawHub" && <ClawhubIntegrationTab />}
 		</section>
