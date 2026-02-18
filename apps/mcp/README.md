@@ -103,9 +103,7 @@ Use that exact absolute path in Claude config.
 ```json
 "breeze": {
       "command": "node",
-      "args": [
-        "path-to-the-folder/breeze-mcp-server/build/index.js"
-      ],
+      "args": ["-y", "@breezebaby/mcp-server"],
       "env": {
         "BREEZE_API_KEY": "your-breeze-api-key",
         "BREEZE_STRATEGY_ID": "strategy-id",
