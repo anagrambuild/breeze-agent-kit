@@ -9,6 +9,40 @@ export const app = new Hono();
 
 app.use(logger());
 
+// root info page — no payment required
+app.get("/", (c) => {
+	const markdown = `# Breeze x402 API
+
+Payment-gated Solana yield strategy endpoints powered by the [x402 protocol](https://x402.org).
+
+## Endpoints
+
+| Method | Path                   | Auth | Description                          |
+|--------|------------------------|------|--------------------------------------|
+| GET    | /healthz               | -    | Service health check                 |
+| GET    | /balance/:fund_user    | x402 | Wallet positions, yield earned, APY  |
+| POST   | /deposit               | x402 | Build unsigned deposit transaction   |
+| POST   | /withdraw              | x402 | Build unsigned withdraw transaction  |
+
+## Auth
+
+Protected endpoints require a USDC micropayment via the x402 protocol.
+Use @faremeter/fetch to handle payment challenges automatically.
+
+## Links
+
+- https://agent.breeze.baby
+- https://breeze.baby
+- https://github.com/anagrambuild/breeze-agent-kit
+
+---
+
+Built for agents, with <3
+`;
+
+	return c.text(markdown, 200, { "content-type": "text/markdown; charset=utf-8" });
+});
+
 // healthz is free — no payment required
 app.get("/healthz", (c) =>
 	c.json({

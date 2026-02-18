@@ -28,7 +28,7 @@ Required:
 
 Optional:
 
-- `BREEZE_STRATEGY_ID` (defaults to the strategy above)
+- `BREEZE_STRATEGY_ID` (defaults to `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` — you can use any Breeze strategy ID)
 - `SOLANA_RPC_URL` (defaults to Solana mainnet public RPC)
 
 ## Tools
@@ -106,7 +106,7 @@ Use that exact absolute path in Claude config.
       "args": ["-y", "@breezebaby/mcp-server"],
       "env": {
         "BREEZE_API_KEY": "your-breeze-api-key",
-        "BREEZE_STRATEGY_ID": "strategy-id",
+        "BREEZE_STRATEGY_ID": "43620ba3-354c-456b-aa3c-5bf7fa46a6d4",
         "WALLET_PRIVATE_KEY": "your-private-key",
         "SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com"
       }

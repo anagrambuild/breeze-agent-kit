@@ -161,7 +161,7 @@ WALLET_PRIVATE_KEY=your_base58_key node deposit.js
 
 | API | Base URL | Endpoints | Auth method |
 |-----|----------|-----------|-------------|
-| **x402 (this skill)** | `https://x402.breeze.baby` | `/balance/:fund_user`<br>`/deposit`<br>`/withdraw` | USDC micropayment via x402 protocol |
+| **x402 (this skill)** | `https://x402.breeze.baby` | `/balance/:fund_user`<br>`/deposit`<br>`/withdraw`<br>`/healthz` (free) | USDC micropayment via x402 protocol |
 | **Direct REST API** | `https://api.breeze.baby` | `/deposit/tx`<br>`/withdraw/tx`<br>`/strategy-info/:id` | `x-api-key` header |
 
 This skill uses the **x402 API**. The direct REST API uses different paths and API key auth — do not mix them.
@@ -178,7 +178,7 @@ This skill uses the **x402 API**. The direct REST API uses different paths and A
 ## Required inputs
 
 - `WALLET_PRIVATE_KEY` (base58 secret key — see Step 0 to generate one)
-- Optional `STRATEGY_ID` (defaults to `43620ba3-354c-456b-aa3c-5bf7fa46a6d4`)
+- Optional `STRATEGY_ID` (defaults to `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` — you can use any Breeze strategy ID)
 - Optional `X402_API_URL` (default `https://x402.breeze.baby`)
 - Optional `SOLANA_RPC_URL` (default `https://api.mainnet-beta.solana.com`)
 - Optional `BASE_ASSET` mint (default USDC mint)
@@ -313,7 +313,7 @@ Withdraw parameters:
 | ----------------- | ------- | -------- | ---------------------------------------------- |
 | `amount`          | number  | yes      | Amount in base units                           |
 | `user_key`        | string  | yes      | User's Solana public key                       |
-| `strategy_id`     | string  | yes      | Breeze strategy ID                             |
+| `strategy_id`     | string  | yes      | Breeze strategy ID (default: `43620ba3-354c-456b-aa3c-5bf7fa46a6d4`, or any valid strategy) |
 | `base_asset`      | string  | yes      | Token mint address                             |
 | `all`             | boolean | no       | Withdraw entire position                       |
 | `exclude_fees`    | boolean | no       | Exclude fees from amount (recommended: `true`) |
@@ -322,6 +322,14 @@ Withdraw parameters:
 | `detect_wsol_ata` | boolean | no       | Auto-detect WSOL ATA and set flags accordingly |
 
 WSOL handling: when withdrawing WSOL (`So11111111111111111111111111111111111111112`), pass `unwrap_wsol_ata: true` to receive native SOL.
+
+### Health Check
+
+```
+GET /healthz
+```
+
+Free endpoint (no x402 payment required). Returns `{"status":"ok"}` when the service is running. Use this to verify connectivity before making paid requests.
 
 ## Workflow checklists
 
@@ -451,7 +459,7 @@ For balance, return:
 | Variable             | Required | Default                                | Description                       |
 | -------------------- | -------- | -------------------------------------- | --------------------------------- |
 | `WALLET_PRIVATE_KEY` | yes      | —                                      | Base58-encoded Solana private key |
-| `STRATEGY_ID`        | no       | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID                |
+| `STRATEGY_ID`        | no       | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID — any valid strategy ID works |
 | `X402_API_URL`       | no       | `https://x402.breeze.baby`             | x402 payment API URL              |
 | `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com`  | Solana RPC endpoint               |
 | `BASE_ASSET`         | no       | USDC mint                              | Default token mint for operations |

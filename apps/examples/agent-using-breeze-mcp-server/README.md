@@ -51,7 +51,7 @@ MCP_SERVER_PATH=../breeze-mcp-server
 
 # Passed through to the MCP server
 BREEZE_API_KEY=your-breeze-api-key
-BREEZE_STRATEGY_ID=your-strategy-id
+BREEZE_STRATEGY_ID=43620ba3-354c-456b-aa3c-5bf7fa46a6d4  # default — or any Breeze strategy ID
 WALLET_PRIVATE_KEY=your-solana-private-key
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ```

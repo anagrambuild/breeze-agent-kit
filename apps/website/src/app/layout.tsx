@@ -34,13 +34,11 @@ export const metadata: Metadata = {
 		url: SITE_URL,
 		siteName: "Breeze Agent Kit",
 		type: "website",
-		images: [{ url: "/og.png", width: 1200, height: 630, alt: "Breeze Agent Kit" }],
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: "Breeze Agent Kit",
 		description,
-		images: ["/og.png"],
 	},
 	alternates: {
 		canonical: SITE_URL,

@@ -62,7 +62,7 @@ const res = await fetchWithPayment(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       user_key: wallet.publicKey.toString(),
-      strategy_id: "${DEFAULT_STRATEGY_ID}", // default agent strategy
+      strategy_id: "${DEFAULT_STRATEGY_ID}", // default — or any Breeze strategy ID
       base_asset: "USDC",
       amount: 100000000
     })
@@ -80,7 +80,7 @@ const { ok, tx } = await res.json();`}</pre>
 				</p>
 				<pre>{`{
   "user_key":     "string",  // wallet pubkey (required)
-  "strategy_id":  "string",  // (required)
+  "strategy_id":  "string",  // default: 43620ba3-... (or any strategy ID)
   "base_asset":   "string",  // e.g. "USDC" (required)
   "amount":       number,    // positive, base units (required)
   "payer_key":    "string"   // optional, defaults to user_key
@@ -96,7 +96,7 @@ const { ok, tx } = await res.json();`}</pre>
 				</p>
 				<pre>{`{
   "user_key":     "string",  // wallet pubkey (required)
-  "strategy_id":  "string",  // (required)
+  "strategy_id":  "string",  // default: 43620ba3-... (or any strategy ID)
   "base_asset":   "string",  // e.g. "USDC" (required)
   "amount":       number,    // positive, base units (required)
   "payer_key":    "string",  // optional

@@ -38,7 +38,7 @@ Fill in `.env`:
 ```
 ANTHROPIC_API_KEY=your-anthropic-api-key
 WALLET_PRIVATE_KEY=your-base58-solana-private-key
-STRATEGY_ID=your-strategy-id
+STRATEGY_ID=43620ba3-354c-456b-aa3c-5bf7fa46a6d4  # default — or any Breeze strategy ID
 X402_API_URL=https://x402.breeze.baby
 SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ```

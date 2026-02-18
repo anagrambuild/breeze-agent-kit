@@ -36,7 +36,7 @@ Discovery and activation are based on `SKILL.md` frontmatter (`name` and `descri
 ## Environment variables
 
 - `WALLET_PRIVATE_KEY` (required)
-- `STRATEGY_ID` (required)
+- `STRATEGY_ID` (optional, defaults to `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` — any valid strategy ID works)
 - `X402_API_URL` (optional)
 - `SOLANA_RPC_URL` (optional)
 - `BASE_ASSET` (optional)
