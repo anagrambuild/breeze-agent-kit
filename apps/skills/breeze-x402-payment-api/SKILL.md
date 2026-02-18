@@ -20,7 +20,7 @@ Use this skill when the user asks for any of:
 ## Required inputs
 
 - `WALLET_PRIVATE_KEY` (base58 secret key)
-- `STRATEGY_ID`
+- Optional `STRATEGY_ID` (defaults to `43620ba3-354c-456b-aa3c-5bf7fa46a6d4`)
 - Optional `X402_API_URL` (default `https://x402.breeze.baby`)
 - Optional `SOLANA_RPC_URL` (default `https://api.mainnet-beta.solana.com`)
 - Optional `BASE_ASSET` mint (default USDC mint)
@@ -68,7 +68,7 @@ import { base58 } from "@scure/base";
 
 const API_URL = (process.env.X402_API_URL ?? "https://x402.breeze.baby").replace(/\/$/, "");
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL ?? "https://api.mainnet-beta.solana.com";
-const STRATEGY_ID = process.env.STRATEGY_ID!;
+const STRATEGY_ID = process.env.STRATEGY_ID || "43620ba3-354c-456b-aa3c-5bf7fa46a6d4";
 const BASE_ASSET = process.env.BASE_ASSET ?? "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY!;
 
@@ -299,7 +299,7 @@ For balance, return:
 | Variable             | Required | Default                               | Description                       |
 | -------------------- | -------- | ------------------------------------- | --------------------------------- |
 | `WALLET_PRIVATE_KEY` | yes      | —                                     | Base58-encoded Solana private key |
-| `STRATEGY_ID`        | yes      | —                                     | Breeze strategy ID                |
+| `STRATEGY_ID`        | no       | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID               |
 | `X402_API_URL`       | no       | `https://x402.breeze.baby`            | x402 payment API URL              |
 | `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint               |
 | `BASE_ASSET`         | no       | USDC mint                             | Default token mint for operations |
