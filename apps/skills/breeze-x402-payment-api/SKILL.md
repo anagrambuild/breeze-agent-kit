@@ -458,4 +458,4 @@ For balance, return:
 
 ## Additional reference
 
-See `apps/examples/agent-using-x402-payment-api/` for a full TypeScript implementation.
+See [agent-using-x402](https://github.com/anagrambuild/breeze-agent-kit/tree/main/apps/examples/agent-using-x402) for a full TypeScript implementation.
