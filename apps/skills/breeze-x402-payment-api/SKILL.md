@@ -6,11 +6,169 @@ compatibility: Requires Node.js and network access to x402 API and Solana RPC. R
 
 # Breeze x402 Payment API
 
-Interact with [Breeze](https://breeze.baby) through its x402 payment-gated HTTP API. Each protected request pays a small USDC amount through x402, then returns API data or an unsigned Solana transaction.
+Interact with [Breeze](https://breeze.baby) through its x402 payment-gated HTTP API. Each protected request pays a small USDC micropayment, then returns API data or an unsigned Solana transaction.
 
-## When to use
+## Quick Start: Minimum Viable Flow
 
-Use this skill when the user asks for any of:
+This is the fastest path from zero to a working deposit. Read this before anything else.
+
+**What you need:**
+- A Solana wallet funded with USDC and ~0.01 SOL (for transaction fees)
+- Node.js installed
+
+### Step 0: Generate a wallet (skip if you already have one)
+
+Run once to create and save a keypair:
+
+```js
+// generate-wallet.js
+const { Keypair } = require('@solana/web3.js');
+const fs = require('fs');
+
+// Install first: npm install @solana/web3.js --legacy-peer-deps
+const bs58Module = require('bs58');
+const bs58 = bs58Module.default || bs58Module;
+
+const keypair = Keypair.generate();
+const secretKeyBase58 = bs58.encode(keypair.secretKey);
+
+console.log('Public key (fund this address):', keypair.publicKey.toBase58());
+console.log('Private key (set as WALLET_PRIVATE_KEY):', secretKeyBase58);
+
+// Save secret key as array backup
+fs.writeFileSync('wallet-backup.json', JSON.stringify(Array.from(keypair.secretKey)));
+console.log('Backup saved to wallet-backup.json — keep this file secret and out of git!');
+```
+
+```bash
+node generate-wallet.js
+```
+
+Fund the printed public key with USDC and at least 0.01 SOL before continuing.
+
+### Step 1: Preflight checks
+
+Verify everything is reachable before writing code:
+
+```bash
+# x402 server health
+curl https://x402.breeze.baby/healthz
+
+# Breeze strategy info (no auth needed)
+curl https://api.breeze.baby/strategy-info/43620ba3-354c-456b-aa3c-5bf7fa46a6d4
+
+# Wallet USDC balance (replace YOUR_WALLET_ADDRESS)
+curl https://api.mainnet-beta.solana.com \
+  -X POST -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"getTokenAccountsByOwner","params":["YOUR_WALLET_ADDRESS",{"mint":"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"},{"encoding":"jsonParsed"}]}'
+```
+
+Expected: healthz returns `{"status":"ok"}`, strategy-info returns strategy data, token query shows your USDC balance. If any of these fail, fix the connectivity issue before proceeding.
+
+### Step 2: Install
+
+```bash
+npm install @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @faremeter/info @solana/web3.js bs58 --legacy-peer-deps
+```
+
+> **`--legacy-peer-deps` is required for npm.** Without it, `@faremeter/*` peer dependency conflicts cause npm to silently remove `@solana/web3.js`.
+
+### Step 3: Run the deposit script
+
+Save as `deposit.js` and run with `node deposit.js`:
+
+```js
+// deposit.js — CommonJS, no TypeScript needed
+'use strict';
+
+const { wrap } = require('@faremeter/fetch');
+const { createPaymentHandler } = require('@faremeter/payment-solana/exact');
+const { createLocalWallet } = require('@faremeter/wallet-solana');
+const { Connection, Keypair, PublicKey, VersionedTransaction, Transaction } = require('@solana/web3.js');
+
+// bs58 exports .default in some CJS environments
+const bs58Module = require('bs58');
+const bs58 = bs58Module.default || bs58Module;
+
+async function main() {
+  const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
+  if (!WALLET_PRIVATE_KEY) throw new Error('Set WALLET_PRIVATE_KEY env var');
+
+  const API_URL = 'https://x402.breeze.baby';
+  const STRATEGY_ID = '43620ba3-354c-456b-aa3c-5bf7fa46a6d4';
+  const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+  const DEPOSIT_AMOUNT = 1_000_000; // 1 USDC (6 decimals)
+
+  // Setup
+  const keypair = Keypair.fromSecretKey(bs58.decode(WALLET_PRIVATE_KEY));
+  const connection = new Connection('https://api.mainnet-beta.solana.com');
+  const wallet = await createLocalWallet('mainnet-beta', keypair);
+  const paymentHandler = createPaymentHandler(wallet, new PublicKey(USDC_MINT), connection);
+  const fetchWithPayment = wrap(fetch, { handlers: [paymentHandler] });
+
+  console.log('Wallet:', keypair.publicKey.toBase58());
+
+  // Build deposit transaction
+  const res = await fetchWithPayment(`${API_URL}/deposit`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      amount: DEPOSIT_AMOUNT,
+      user_key: keypair.publicKey.toBase58(),
+      strategy_id: STRATEGY_ID,
+      base_asset: USDC_MINT,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Deposit failed (${res.status}): ${text}`);
+  }
+
+  // Parse transaction string (may be bare or JSON-wrapped)
+  const raw = (await res.text()).trim();
+  const txString = raw.startsWith('"') ? JSON.parse(raw) : raw;
+
+  // Sign and send (try versioned tx first, fall back to legacy)
+  const bytes = Buffer.from(txString, 'base64');
+  let sig;
+  try {
+    const tx = VersionedTransaction.deserialize(bytes);
+    tx.sign([keypair]);
+    sig = await connection.sendRawTransaction(tx.serialize());
+  } catch {
+    const tx = Transaction.from(bytes);
+    tx.partialSign(keypair);
+    sig = await connection.sendRawTransaction(tx.serialize());
+  }
+
+  await connection.confirmTransaction(sig, 'confirmed');
+  console.log('Done! View transaction:', `https://solscan.io/tx/${sig}`);
+}
+
+main().catch(console.error);
+```
+
+```bash
+WALLET_PRIVATE_KEY=your_base58_key node deposit.js
+```
+
+---
+
+## Endpoint Paths: x402 API vs Direct REST API
+
+> **These are different APIs with different paths.** Do not mix them up.
+
+| API | Base URL | Endpoints | Auth method |
+|-----|----------|-----------|-------------|
+| **x402 (this skill)** | `https://x402.breeze.baby` | `/balance/:fund_user`<br>`/deposit`<br>`/withdraw` | USDC micropayment via x402 protocol |
+| **Direct REST API** | `https://api.breeze.baby` | `/deposit/tx`<br>`/withdraw/tx`<br>`/strategy-info/:id` | `x-api-key` header |
+
+This skill uses the **x402 API**. The direct REST API uses different paths and API key auth — do not mix them.
+
+---
+
+## When to use this skill
 
 - "check my Breeze balance" or "show positions/yield"
 - "deposit X token into Breeze strategy"
@@ -19,7 +177,7 @@ Use this skill when the user asks for any of:
 
 ## Required inputs
 
-- `WALLET_PRIVATE_KEY` (base58 secret key)
+- `WALLET_PRIVATE_KEY` (base58 secret key — see Step 0 to generate one)
 - Optional `STRATEGY_ID` (defaults to `43620ba3-354c-456b-aa3c-5bf7fa46a6d4`)
 - Optional `X402_API_URL` (default `https://x402.breeze.baby`)
 - Optional `SOLANA_RPC_URL` (default `https://api.mainnet-beta.solana.com`)
@@ -30,41 +188,35 @@ Use this skill when the user asks for any of:
 - Never print or echo `WALLET_PRIVATE_KEY`.
 - Never return raw secret values in tool output.
 - If a command fails, redact secrets before showing logs.
+- Add `wallet-backup.json` to `.gitignore` immediately.
 
 ## Dependencies and install
 
-Required packages:
-
-- `@faremeter/fetch`
-- `@faremeter/payment-solana`
-- `@faremeter/wallet-solana`
-- `@scure/base`
-- `@solana/web3.js`
-
-Install with one package manager:
-
 ```bash
-npm install @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @scure/base @solana/web3.js
+# npm (--legacy-peer-deps required)
+npm install @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @faremeter/info @solana/web3.js bs58 --legacy-peer-deps
 ```
 
 ```bash
-pnpm add @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @scure/base @solana/web3.js
+# pnpm
+pnpm add @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @faremeter/info @solana/web3.js bs58
 ```
 
 ```bash
-bun add @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @scure/base @solana/web3.js
+# bun
+bun add @faremeter/fetch @faremeter/payment-solana @faremeter/wallet-solana @faremeter/info @solana/web3.js bs58
 ```
 
-## Setup: Payment-Wrapped Fetch
+## Setup: Payment-Wrapped Fetch (TypeScript)
 
-Use this setup once per runtime. It automatically handles x402 challenges (`402` -> build payment proof -> retry request):
+Use this setup once per runtime. It automatically handles x402 challenges (`402` → build payment proof → retry request):
 
 ```typescript
 import { wrap } from "@faremeter/fetch";
 import { createPaymentHandler } from "@faremeter/payment-solana/exact";
 import { createLocalWallet } from "@faremeter/wallet-solana";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { base58 } from "@scure/base";
+import bs58 from "bs58";
 
 const API_URL = (process.env.X402_API_URL ?? "https://x402.breeze.baby").replace(/\/$/, "");
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL ?? "https://api.mainnet-beta.solana.com";
@@ -72,7 +224,7 @@ const STRATEGY_ID = process.env.STRATEGY_ID || "43620ba3-354c-456b-aa3c-5bf7fa46
 const BASE_ASSET = process.env.BASE_ASSET ?? "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY!;
 
-const keypair = Keypair.fromSecretKey(base58.decode(WALLET_PRIVATE_KEY));
+const keypair = Keypair.fromSecretKey(bs58.decode(WALLET_PRIVATE_KEY));
 const connection = new Connection(SOLANA_RPC_URL);
 const wallet = await createLocalWallet("mainnet-beta", keypair);
 const walletPublicKey = keypair.publicKey.toBase58();
@@ -296,14 +448,14 @@ For balance, return:
 
 ## Environment Variables
 
-| Variable             | Required | Default                               | Description                       |
-| -------------------- | -------- | ------------------------------------- | --------------------------------- |
-| `WALLET_PRIVATE_KEY` | yes      | —                                     | Base58-encoded Solana private key |
-| `STRATEGY_ID`        | no       | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID               |
-| `X402_API_URL`       | no       | `https://x402.breeze.baby`            | x402 payment API URL              |
-| `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint               |
-| `BASE_ASSET`         | no       | USDC mint                             | Default token mint for operations |
+| Variable             | Required | Default                                | Description                       |
+| -------------------- | -------- | -------------------------------------- | --------------------------------- |
+| `WALLET_PRIVATE_KEY` | yes      | —                                      | Base58-encoded Solana private key |
+| `STRATEGY_ID`        | no       | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID                |
+| `X402_API_URL`       | no       | `https://x402.breeze.baby`             | x402 payment API URL              |
+| `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com`  | Solana RPC endpoint               |
+| `BASE_ASSET`         | no       | USDC mint                              | Default token mint for operations |
 
 ## Additional reference
 
-See `apps/examples/agent-using-x402-payment-api/` for a full implementation.
+See `apps/examples/agent-using-x402-payment-api/` for a full TypeScript implementation.
