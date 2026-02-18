@@ -36,8 +36,8 @@ export default function Home() {
 					<strong className="text-fg">ClawHub</strong>.
 				</p>
 				<div className="mt-4 flex gap-4 text-sm">
-					<a href="https://github.com/anagrambuild/breeze-agent-kit">GitHub</a>
-					<a href="https://try.breeze.baby">Human?</a>
+					<a href="https://github.com/anagrambuild/breeze-agent-kit" target="_blank" rel="noopener noreferrer">GitHub</a>
+					<a href="https://try.breeze.baby" target="_blank" rel="noopener noreferrer">Human?</a>
 				</div>
 			</header>
 
@@ -68,8 +68,8 @@ export default function Home() {
 
 			{/* Footer */}
 			<footer className="border-t border-border pt-6 text-xs text-dim">
-				<a href="https://github.com/anagrambuild">Anagram</a> /{" "}
-				<a href="https://www.breeze.baby/">Breeze</a>
+				<a href="https://github.com/anagrambuild" target="_blank" rel="noopener noreferrer">Anagram</a> /{" "}
+				<a href="https://www.breeze.baby/" target="_blank" rel="noopener noreferrer">Breeze</a>
 			</footer>
 		</main>
 	);

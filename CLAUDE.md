@@ -99,5 +99,5 @@ Hono app with three payment-gated routes (`/deposit`, `/withdraw`, `/balance`) a
 
 - `RUST_API_BASE_URL`, `AGENT_PROXY_KEY_ID`, `AGENT_PROXY_SECRET` (required — proxy config)
 - `X402_PAY_TO`, `X402_NETWORK` (required — payment config)
-- `X402_PRICE_USDC` (optional, default 10000 = $0.01 in microUSDC)
+- `X402_PRICE_USDC` (optional, default 1000 = $0.001 in microUSDC)
 - `PORT` (optional, default 3402)

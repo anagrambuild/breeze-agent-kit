@@ -53,7 +53,9 @@ export function SkillIntegrationTab() {
 	return (
 		<div>
 			<div className="flex items-center justify-between mb-4">
-				<p className="text-sm text-dim">Skill config for agent frameworks.</p>
+				<p className="text-sm text-dim">
+					Drop this into Claude, GPT, OpenClaw, or any platform that supports skills.
+				</p>
 				<SkillCopyButton text={skillMarkdown} />
 			</div>
 			<pre className="whitespace-pre-wrap break-words">{skillMarkdown}</pre>

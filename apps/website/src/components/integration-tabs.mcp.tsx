@@ -12,7 +12,7 @@ export function McpIntegrationTab() {
 					<div>
 						<p>
 							Get your <code className="text-pink">BREEZE_API_KEY</code> from{" "}
-							<a href="https://portal.breeze.baby">portal.breeze.baby</a>.
+							<a href="https://portal.breeze.baby" target="_blank" rel="noopener noreferrer">portal.breeze.baby</a>.
 						</p>
 					</div>
 				</div>
