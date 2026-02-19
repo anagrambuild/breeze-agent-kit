@@ -32,7 +32,7 @@ export default function Home() {
 					Solana yield strategies for AI agents.
 					<br />
 					Four paths: <strong className="text-fg">MCP</strong>,{" "}
-					<strong className="text-fg">402</strong>, <strong className="text-fg">Skill</strong>, or{" "}
+					<strong className="text-fg">x402</strong>, <strong className="text-fg">skill</strong>, or{" "}
 					<strong className="text-fg">ClawHub</strong>.
 				</p>
 				<div className="mt-4 flex gap-4 text-sm">
