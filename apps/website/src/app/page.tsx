@@ -35,9 +35,30 @@ export default function Home() {
 					<strong className="text-fg">x402</strong>, <strong className="text-fg">skill</strong>, or{" "}
 					<strong className="text-fg">ClawHub</strong>.
 				</p>
-				<div className="mt-4 flex gap-4 text-sm">
-					<a href="https://github.com/anagrambuild/breeze-agent-kit" target="_blank" rel="noopener noreferrer">GitHub</a>
-					<a href="https://try.breeze.baby" target="_blank" rel="noopener noreferrer">Human?</a>
+				<div className="mt-4 flex flex-wrap gap-4 text-sm">
+					<a href="/SKILL.md" target="_blank" rel="noopener noreferrer">
+						SKILL.md
+					</a>
+					<a href="/llms.txt" target="_blank" rel="noopener noreferrer">
+						llms.txt
+					</a>
+					<a
+						href="https://github.com/anagrambuild/breeze-agent-kit"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						GitHub
+					</a>
+					<a
+						href="https://portal.breeze.baby"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Get API Key
+					</a>
+					<a href="https://try.breeze.baby" target="_blank" rel="noopener noreferrer">
+						Human?
+					</a>
 				</div>
 			</header>
 

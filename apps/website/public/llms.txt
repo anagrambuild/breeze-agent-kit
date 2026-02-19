@@ -1,36 +1,44 @@
 # Breeze Agent Kit
 
-> Solana yield strategies for AI agents.
+> Solana yield strategies for AI agents. Deposit, withdraw, and check balances across DeFi yield strategies on Solana.
 
-Breeze Agent Kit lets AI agents deposit, withdraw, and check balances across Solana DeFi yield strategies. It supports multiple integration methods so agents can interact however suits their architecture.
+Breeze lets any AI agent earn yield on Solana tokens (USDC, SOL, JitoSOL, mSOL, JupSOL, USDT, USDS, JLP). Agents interact with Breeze strategies to deposit tokens, withdraw positions, and check balances/yield.
 
-## Integration Methods
+## Which integration method should I use?
 
-### MCP (Model Context Protocol)
-Stdio-based MCP server exposing tools: get_strategy_info, check_balances, get_deposit_tx, get_withdraw_tx, sign_and_send_tx. Works with Claude Desktop, Cursor, and any MCP-compatible client.
+**x402 (recommended for most agents)** — HTTP API, no API key needed, pay ~$0.001 USDC per request. Works from any runtime that can make HTTP calls. Most agent-native approach.
+→ Base URL: https://x402.breeze.baby
+→ Endpoints: POST /deposit, POST /withdraw, GET /balance/:wallet, GET /healthz (free)
+→ Full docs: https://agent.breeze.baby/SKILL.md
 
-### x402 (HTTP Payment Protocol)
-Hono HTTP service at https://x402.breeze.baby with /deposit, /withdraw, /balance endpoints gated behind x402 USDC micropayments. Agents pay-per-call with no API keys needed.
+**MCP** — Stdio-based Model Context Protocol server. Only works in MCP-compatible runtimes (Claude Desktop, Cursor, etc). Requires a BREEZE_API_KEY.
+→ Install: npx -y @breezebaby/mcp-server
+→ Get API key: https://portal.breeze.baby
+→ Docs: https://agent.breeze.baby#mcp
 
-### Skill (Cross-Model)
-Reusable Breeze skill for agent workflows across Claude, GPT, Cursor, and other compatible clients.
+**Direct REST API** — Traditional HTTP API with API key auth. For server-side agents and custom integrations.
+→ Base URL: https://api.breeze.baby
+→ Auth: x-api-key header
+→ Get API key: https://portal.breeze.baby
 
-### ClawHub
-Install the Breeze skill with one command: `npx clawhub@latest install breeze`. Gives Claude Code the ability to automate yield on Solana assets via the x402 payment API.
+**Skill / ClawHub** — Install as a reusable skill for Claude Code or other skill-compatible agents.
+→ ClawHub: npx clawhub@latest install breeze-x402-payment-api
+→ Manual: npx skills add https://github.com/anagrambuild/breeze-agent-kit/apps/skills --skill breeze-x402-payment-api
 
-## Supported Tokens
-- USDC (6 decimals)
-- SOL (9 decimals)
-- JitoSOL (9 decimals)
-- mSOL (9 decimals)
-- JupSOL (9 decimals)
-- USDT (6 decimals)
-- USDS (6 decimals)
-- JLP (6 decimals)
+## Key concepts
+
+**Strategy ID**: Identifies which yield strategy to use. Default: `43620ba3-354c-456b-aa3c-5bf7fa46a6d4`. Browse strategies at https://try.breeze.baby or query GET https://api.breeze.baby/strategy-info/43620ba3-354c-456b-aa3c-5bf7fa46a6d4 for metadata.
+
+**Token amounts**: x402 and REST APIs use base units (e.g., 1 USDC = 1000000). MCP tools use human-readable units (e.g., 1 USDC = 1). Token decimals: USDC/USDT/USDS/JLP = 6, SOL/JitoSOL/mSOL/JupSOL = 9.
+
+**Transactions**: Deposit and withdraw endpoints return unsigned base64-encoded Solana transactions. Your agent must sign with a Solana keypair and broadcast to the network.
 
 ## Links
-- Website: https://agent.breeze.baby
+
+- Unified skill file: https://agent.breeze.baby/SKILL.md
 - x402 API: https://x402.breeze.baby
+- Get API key: https://portal.breeze.baby
+- Strategy browser: https://try.breeze.baby
 - GitHub: https://github.com/anagrambuild/breeze-agent-kit
-- Breeze Portal: https://try.breeze.baby
-- Breeze: https://www.breeze.baby
+- Examples: https://github.com/anagrambuild/breeze-agent-kit/tree/main/apps/examples
+- Website: https://agent.breeze.baby

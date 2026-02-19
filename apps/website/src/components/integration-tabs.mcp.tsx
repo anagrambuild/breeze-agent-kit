@@ -5,6 +5,45 @@ export function McpIntegrationTab() {
 				Install-free MCP setup via npm package. No repo clone or local build needed.
 			</p>
 
+			<div className="border border-border rounded p-3 mb-6 text-sm">
+				<p className="font-bold mb-1">Don&apos;t have an MCP-compatible runtime?</p>
+				<p className="text-dim">
+					MCP only works in Claude Desktop, Cursor, and similar clients. If your agent runs
+					outside these environments, use the{" "}
+					<a href="#x402" className="text-pink">
+						x402 HTTP API
+					</a>{" "}
+					instead — no API key needed, just a funded Solana wallet. Or use the{" "}
+					<a
+						href="https://api.breeze.baby"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-pink"
+					>
+						REST API
+					</a>{" "}
+					with an API key from{" "}
+					<a
+						href="https://portal.breeze.baby"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-pink"
+					>
+						portal.breeze.baby
+					</a>
+					. See the full{" "}
+					<a
+						href="/SKILL.md"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-pink"
+					>
+						unified skill file
+					</a>{" "}
+					for all integration paths.
+				</p>
+			</div>
+
 			<h3 className="text-sm font-bold mb-3">Setup</h3>
 			<div className="text-sm mb-6 space-y-3">
 				<div className="flex gap-3">
@@ -38,11 +77,25 @@ export function McpIntegrationTab() {
       "env": {
         "BREEZE_API_KEY": "your-api-key",
         "WALLET_PRIVATE_KEY": "your-base58-private-key",
+        "BREEZE_STRATEGY_ID": "43620ba3-354c-456b-aa3c-5bf7fa46a6d4",
         "SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com"
       }
     }
   }
 }`}</pre>
+						<p className="text-xs text-dim mt-1.5">
+							<code className="text-pink">BREEZE_STRATEGY_ID</code> identifies the yield strategy.
+							The default above works for most use cases. Browse strategies at{" "}
+							<a
+								href="https://try.breeze.baby"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-pink"
+							>
+								try.breeze.baby
+							</a>
+							.
+						</p>
 					</div>
 				</div>
 				<div className="flex gap-3">
