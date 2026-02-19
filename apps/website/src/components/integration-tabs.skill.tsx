@@ -50,15 +50,23 @@ export function SkillIntegrationTab() {
 		};
 	}, []);
 
+	const installCommand =
+		"npx skills add https://github.com/anagrambuild/breeze-agent-kit/apps/skills --skill breeze-x402-payment-api";
+
 	return (
 		<div>
-			<div className="flex items-center justify-between mb-4">
+			<div className="flex items-center justify-between mb-2">
 				<p className="text-sm text-dim">
-					Drop this into Claude, GPT, OpenClaw, or any platform that supports skills.
+					One command to install to your favorite agent (Claude Code, ChatGPT, Gemini, etc.)
 				</p>
+				<SkillCopyButton text={installCommand} />
+			</div>
+			<pre className="mb-6">{installCommand}</pre>
+			<div className="flex items-center justify-between mb-2">
+				<p className="text-xs text-dim">Or copy the full skill markdown:</p>
 				<SkillCopyButton text={skillMarkdown} />
 			</div>
-			<pre className="whitespace-pre-wrap break-words">{skillMarkdown}</pre>
+			<pre>{skillMarkdown}</pre>
 		</div>
 	);
 }

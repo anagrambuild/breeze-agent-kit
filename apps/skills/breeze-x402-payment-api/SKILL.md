@@ -2,6 +2,7 @@
 name: breeze-x402-payment-api
 description: Operates Breeze x402 payment-gated endpoints for balance checks, deposits, and withdrawals on Solana. Use when the user asks to manage Breeze positions or execute paid x402 API calls.
 compatibility: Requires Node.js and network access to x402 API and Solana RPC. Requires a funded Solana wallet for x402 USDC micropayments.
+metadata: {"openclaw":{"requires":{"bins":["node"],"env":["WALLET_PRIVATE_KEY"]},"primaryEnv":"WALLET_PRIVATE_KEY"}}
 ---
 
 # Breeze x402 Payment API
@@ -33,18 +34,18 @@ const keypair = Keypair.generate();
 const secretKeyBase58 = bs58.encode(keypair.secretKey);
 
 console.log('Public key (fund this address):', keypair.publicKey.toBase58());
-console.log('Private key (set as WALLET_PRIVATE_KEY):', secretKeyBase58);
 
-// Save secret key as array backup
+// Save secret key to file — never print it to the console
 fs.writeFileSync('wallet-backup.json', JSON.stringify(Array.from(keypair.secretKey)));
-console.log('Backup saved to wallet-backup.json — keep this file secret and out of git!');
+fs.writeFileSync('.env', `WALLET_PRIVATE_KEY=${secretKeyBase58}\n`);
+console.log('Saved .env with WALLET_PRIVATE_KEY and wallet-backup.json — keep both secret and out of git!');
 ```
 
 ```bash
 node generate-wallet.js
 ```
 
-Fund the printed public key with USDC and at least 0.01 SOL before continuing.
+Fund the printed public key with USDC and at least 0.01 SOL before continuing. The `.env` file now contains your `WALLET_PRIVATE_KEY`.
 
 ### Step 1: Preflight checks
 
@@ -150,7 +151,8 @@ main().catch(console.error);
 ```
 
 ```bash
-WALLET_PRIVATE_KEY=your_base58_key node deposit.js
+# Set WALLET_PRIVATE_KEY from the .env created in Step 0
+export $(cat .env | xargs) && node deposit.js
 ```
 
 ---
@@ -463,6 +465,16 @@ For balance, return:
 | `X402_API_URL`       | no       | `https://x402.breeze.baby`             | x402 payment API URL              |
 | `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com`  | Solana RPC endpoint               |
 | `BASE_ASSET`         | no       | USDC mint                              | Default token mint for operations |
+
+## External Endpoints
+
+This skill sends requests to:
+- `https://x402.breeze.baby` — Breeze x402 payment-gated API (deposits, withdrawals, balances)
+- `https://api.mainnet-beta.solana.com` — Solana RPC (transaction signing and broadcasting)
+
+## Security & Privacy
+
+This skill requires `WALLET_PRIVATE_KEY` as an environment variable for signing Solana transactions and x402 USDC micropayments. The key is read from the process environment at runtime and is never logged, printed, or returned in output. By using this skill, small USDC micropayments are sent from your wallet to gate API access. Only install this skill if you trust Breeze with your wallet's signing capability for USDC transactions.
 
 ## Additional reference
 
