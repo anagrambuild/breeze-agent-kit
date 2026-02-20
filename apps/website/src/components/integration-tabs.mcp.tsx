@@ -9,11 +9,11 @@ export function McpIntegrationTab() {
 				<p className="font-bold mb-1">Don&apos;t have an MCP-compatible client?</p>
 				<p className="text-dim">
 					MCP works in Claude Desktop, Claude Code, Cursor, Codex, Windsurf, and other
-					MCP-compatible clients. If your agent doesn&apos;t support MCP, use the{" "}
+					MCP-compatible clients. If you prefer NOT to use an API key, use the{" "}
 					<a href="#x402" className="text-pink">
 						x402 HTTP API
 					</a>{" "}
-					instead — no API key needed, just a funded Solana wallet. See the full{" "}
+					instead - it only needs a funded Solana wallet. See the full{" "}
 					<a
 						href="/SKILL.md"
 						target="_blank"
