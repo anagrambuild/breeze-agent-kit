@@ -6,10 +6,10 @@ export function McpIntegrationTab() {
 			</p>
 
 			<div className="border border-border rounded p-3 mb-6 text-sm">
-				<p className="font-bold mb-1">Don&apos;t have an MCP-compatible runtime?</p>
+				<p className="font-bold mb-1">Don&apos;t have an MCP-compatible client?</p>
 				<p className="text-dim">
-					MCP only works in Claude Desktop, Cursor, and similar clients. If your agent runs
-					outside these environments, use the{" "}
+					MCP works in Claude Desktop, Claude Code, Cursor, Codex, Windsurf, and other
+					MCP-compatible clients. If your agent doesn&apos;t support MCP, use the{" "}
 					<a href="#x402" className="text-pink">
 						x402 HTTP API
 					</a>{" "}
@@ -102,14 +102,17 @@ export function McpIntegrationTab() {
 					<span className="text-pink font-bold shrink-0">4.</span>
 					<div>
 						<p>Paste it into your MCP client config:</p>
-						<pre className="mt-1.5">{`# macOS
+						<pre className="mt-1.5">{`# Claude Desktop (macOS)
 ~/Library/Application Support/Claude/claude_desktop_config.json
 
-# Windows
+# Claude Desktop (Windows)
 %APPDATA%\\Claude\\claude_desktop_config.json
 
-# Linux
+# Claude Desktop (Linux)
 ~/.config/Claude/claude_desktop_config.json
+
+# Claude Code (global or project)
+~/.claude/mcp.json  or  .claude/mcp.json
 
 # Cursor project
 .cursor/mcp.json`}</pre>

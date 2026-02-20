@@ -11,7 +11,7 @@ Breeze lets any AI agent earn yield on Solana tokens (USDC, SOL, JitoSOL, mSOL, 
 → Endpoints: POST /deposit, POST /withdraw, GET /balance/:wallet, GET /healthz (free)
 → Full docs: https://agent.breeze.baby/SKILL.md
 
-**MCP** — Stdio-based Model Context Protocol server. Only works in MCP-compatible runtimes (Claude Desktop, Cursor, etc). Requires a BREEZE_API_KEY.
+**MCP** — Stdio-based Model Context Protocol server. Works in any MCP-compatible client (Claude Desktop, Claude Code, Cursor, Codex, Windsurf, etc). Requires a BREEZE_API_KEY.
 → Install: npx -y @breezebaby/mcp-server
 → Get API key: https://portal.breeze.baby
 → Docs: https://agent.breeze.baby#mcp

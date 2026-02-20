@@ -1,7 +1,7 @@
 ---
 name: breeze
 description: Deposit, withdraw, and check balances on Solana DeFi yield strategies via Breeze. Supports x402 keyless HTTP, MCP, and REST API integrations.
-compatibility: Requires network access. x402 path requires a funded Solana wallet (USDC + SOL for fees). MCP path requires BREEZE_API_KEY and MCP-compatible runtime. REST path requires BREEZE_API_KEY.
+compatibility: Requires network access. x402 path requires a funded Solana wallet (USDC + SOL for fees). MCP path requires BREEZE_API_KEY and an MCP-compatible client. REST path requires BREEZE_API_KEY.
 ---
 
 # Breeze Agent Kit
@@ -13,7 +13,7 @@ Solana yield strategies for AI agents. Earn yield on USDC, SOL, JitoSOL, mSOL, J
 | Method | Best for | Auth | Runtime requirement |
 |--------|----------|------|---------------------|
 | **x402** | Most agents | Wallet pays ~$0.001 USDC/request | Any HTTP client |
-| **MCP** | Claude Desktop, Cursor | BREEZE_API_KEY | MCP-compatible runtime only |
+| **MCP** | Claude Desktop, Claude Code, Cursor, Codex, etc. | BREEZE_API_KEY | Any MCP-compatible client |
 | **REST API** | Server-side agents | x-api-key header | Any HTTP client |
 
 **Don't have MCP?** Use x402. It's the most agent-native approach — no API key, no special runtime, just HTTP + a funded Solana wallet.
@@ -246,7 +246,7 @@ Values are in base units. Convert to human-readable: `human = base_units / 10^de
 
 ## Path 2: MCP (Model Context Protocol)
 
-**For MCP-compatible runtimes only** (Claude Desktop, Cursor, etc). If your agent isn't running inside an MCP client, use x402 instead.
+**For any MCP-compatible client** (Claude Desktop, Claude Code, Cursor, Codex, Windsurf, etc). If your agent doesn't support MCP, use x402 instead.
 
 ### Prerequisites
 
@@ -278,6 +278,7 @@ Place this config in your MCP client's config file:
 - **Claude Desktop (macOS):** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Claude Desktop (Windows):** `%APPDATA%\Claude\claude_desktop_config.json`
 - **Claude Desktop (Linux):** `~/.config/Claude/claude_desktop_config.json`
+- **Claude Code:** `~/.claude/mcp.json` (global) or `.claude/mcp.json` (project)
 - **Cursor:** `.cursor/mcp.json` in your project root
 
 Restart the MCP client after adding the config.
@@ -387,7 +388,7 @@ Start here:
 │  └─ NO (agent is sandboxed)
 │     → Use MCP (Path 2) if your runtime supports it.
 │
-├─ Is your agent in Claude Desktop or Cursor?
+├─ Is your agent MCP-compatible? (Claude Desktop, Claude Code, Cursor, Codex, etc.)
 │  → MCP (Path 2) is easiest. Just add the config JSON.
 │
 └─ Want one-command install for Claude Code?
