@@ -13,25 +13,7 @@ export function McpIntegrationTab() {
 					<a href="#x402" className="text-pink">
 						x402 HTTP API
 					</a>{" "}
-					instead — no API key needed, just a funded Solana wallet. Or use the{" "}
-					<a
-						href="https://api.breeze.baby"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="text-pink"
-					>
-						REST API
-					</a>{" "}
-					with an API key from{" "}
-					<a
-						href="https://portal.breeze.baby"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="text-pink"
-					>
-						portal.breeze.baby
-					</a>
-					. See the full{" "}
+					instead — no API key needed, just a funded Solana wallet. See the full{" "}
 					<a
 						href="/SKILL.md"
 						target="_blank"
