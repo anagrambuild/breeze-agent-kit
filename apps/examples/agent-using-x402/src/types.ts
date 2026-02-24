@@ -15,7 +15,6 @@ export type AgentTxPayload = {
 	amount: number;
 	user_key: string;
 	payer_key?: string;
-	fund_id?: string;
 	strategy_id: string;
 	base_asset: string;
 	all?: boolean;

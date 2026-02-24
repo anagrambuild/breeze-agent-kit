@@ -8,7 +8,6 @@ export const withdraw = new Hono();
 const withdrawInput = z.object({
 	user_key: z.string().min(1),
 	payer_key: z.string().min(1).optional(),
-	fund_id: z.string().min(1).optional(),
 	strategy_id: z.string().min(1),
 	base_asset: z.string().min(1),
 	amount: z.number().positive(),
@@ -30,7 +29,6 @@ withdraw.post(
 			const params: Record<string, unknown> = {
 				user_key: body.user_key,
 				payer_key: body.payer_key,
-				fund_id: body.fund_id,
 				strategy_id: body.strategy_id,
 				base_asset: body.base_asset,
 				amount: body.amount,

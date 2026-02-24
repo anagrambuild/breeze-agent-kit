@@ -103,11 +103,10 @@ describe("POST /withdraw", () => {
 		expect(res.status).toBe(400);
 	});
 
-	test("passes optional fund_id and user_token_account", async () => {
+	test("passes optional user_token_account", async () => {
 		globalThis.fetch = (async (_input, init) => {
 			const raw = init?.body as Buffer;
 			const parsed = JSON.parse(raw.toString("utf8"));
-			expect(parsed.params.fund_id).toBe("fund-1");
 			expect(parsed.params.user_token_account).toBe("ata-1");
 
 			return new Response(JSON.stringify({ ok: true, tx: "wd-789" }), {
@@ -118,7 +117,6 @@ describe("POST /withdraw", () => {
 
 		const res = await json({
 			user_key: "user-1",
-			fund_id: "fund-1",
 			strategy_id: "strat-1",
 			base_asset: "USDC",
 			user_token_account: "ata-1",

@@ -52,7 +52,6 @@ export async function deposit(params: {
   amount: number;
   user_key: string;
   payer_key?: string;
-  fund_id?: string;
   strategy_id: string;
   base_asset: string;
   user_token_account?: string;
@@ -73,7 +72,6 @@ export async function withdraw(params: {
   amount: number;
   user_key: string;
   payer_key?: string;
-  fund_id?: string;
   strategy_id: string;
   base_asset: string;
   all?: boolean;
