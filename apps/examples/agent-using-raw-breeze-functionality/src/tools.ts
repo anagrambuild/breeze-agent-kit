@@ -8,6 +8,26 @@ const sdk = new BreezeSDK({
 	apiKey: config.breezeApiKey,
 });
 
+function normalizeStatusError(raw: string): string {
+	const lower = raw.toLowerCase();
+
+	if (
+		lower.includes("fundnotlivefordeposit") ||
+		(lower.includes("not live") && lower.includes("deposit"))
+	) {
+		return "Deposit blocked: this fund is not `Live` (likely `Paused` or `WithdrawOnly`). Ask an admin to set status to `Live` or use another fund.";
+	}
+
+	if (
+		lower.includes("fundnotliveorwithdrawonlyforwithdraw") ||
+		(lower.includes("withdraw") && lower.includes("paused"))
+	) {
+		return "Withdraw blocked: this fund appears `Paused`. Withdraws are allowed only when status is `Live` or `WithdrawOnly`.";
+	}
+
+	return raw;
+}
+
 // Tool definitions for Claude
 export const toolDefinitions: Anthropic.Tool[] = [
 	{
@@ -197,7 +217,8 @@ export async function executeTool(name: string, input: Record<string, unknown>):
 				return JSON.stringify({ error: `Unknown tool: ${name}` });
 		}
 	} catch (err) {
-		const message = err instanceof Error ? err.message : String(err);
+		const raw = err instanceof Error ? err.message : String(err);
+		const message = normalizeStatusError(raw);
 		return JSON.stringify({ error: message });
 	}
 }

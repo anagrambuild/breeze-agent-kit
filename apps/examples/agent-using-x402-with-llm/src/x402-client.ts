@@ -14,11 +14,36 @@ const fetchWithPayment = wrap(fetch, { handlers: [paymentHandler] });
 
 const apiBaseUrl = config.x402ApiUrl.replace(/\/$/, "");
 
+function normalizeStatusError(raw: string): string {
+  const lower = raw.toLowerCase();
+
+  if (
+    lower.includes("fundnotlivefordeposit") ||
+    (lower.includes("not live") && lower.includes("deposit"))
+  ) {
+    return "Deposit blocked: this fund is not `Live` (likely `Paused` or `WithdrawOnly`). Ask an admin to set status to `Live` or use another fund.";
+  }
+
+  if (
+    lower.includes("fundnotliveorwithdrawonlyforwithdraw") ||
+    (lower.includes("withdraw") && lower.includes("paused"))
+  ) {
+    return "Withdraw blocked: this fund appears `Paused`. Withdraws are allowed only when status is `Live` or `WithdrawOnly`.";
+  }
+
+  return raw;
+}
+
+async function throwRequestError(prefix: string, response: Response): Promise<never> {
+  const bodyText = await response.text();
+  throw new Error(normalizeStatusError(`${prefix} (${response.status}): ${bodyText}`));
+}
+
 export async function checkBalance(fundUser: string): Promise<string> {
   const url = `${apiBaseUrl}/balance/${encodeURIComponent(fundUser)}`;
   const response = await fetchWithPayment(url, { method: "GET" });
   if (!response.ok) {
-    throw new Error(`Balance request failed (${response.status}): ${await response.text()}`);
+    await throwRequestError("Balance request failed", response);
   }
   return response.text();
 }
@@ -27,8 +52,10 @@ export async function deposit(params: {
   amount: number;
   user_key: string;
   payer_key?: string;
+  fund_id?: string;
   strategy_id: string;
   base_asset: string;
+  user_token_account?: string;
 }): Promise<string> {
   const url = `${apiBaseUrl}/deposit`;
   const response = await fetchWithPayment(url, {
@@ -37,7 +64,7 @@ export async function deposit(params: {
     body: JSON.stringify(params),
   });
   if (!response.ok) {
-    throw new Error(`Deposit request failed (${response.status}): ${await response.text()}`);
+    await throwRequestError("Deposit request failed", response);
   }
   return response.text();
 }
@@ -46,9 +73,11 @@ export async function withdraw(params: {
   amount: number;
   user_key: string;
   payer_key?: string;
+  fund_id?: string;
   strategy_id: string;
   base_asset: string;
   all?: boolean;
+  user_token_account?: string;
   unwrap_wsol_ata?: boolean;
   exclude_fees?: boolean;
 }): Promise<string> {
@@ -59,7 +88,7 @@ export async function withdraw(params: {
     body: JSON.stringify(params),
   });
   if (!response.ok) {
-    throw new Error(`Withdraw request failed (${response.status}): ${await response.text()}`);
+    await throwRequestError("Withdraw request failed", response);
   }
   return response.text();
 }
