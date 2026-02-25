@@ -12,6 +12,7 @@ const withdrawInput = z.object({
 	base_asset: z.string().min(1),
 	amount: z.number().positive(),
 	all: z.boolean().optional(),
+	user_token_account: z.string().min(1).optional(),
 	create_wsol_ata: z.boolean().optional(),
 	unwrap_wsol_ata: z.boolean().optional(),
 	detect_wsol_ata: z.boolean().optional(),
@@ -33,6 +34,7 @@ withdraw.post(
 				amount: body.amount,
 				all: body.all ?? false,
 			};
+			if (body.user_token_account !== undefined) params.user_token_account = body.user_token_account;
 			if (body.create_wsol_ata !== undefined) params.create_wsol_ata = body.create_wsol_ata;
 			if (body.unwrap_wsol_ata !== undefined) params.unwrap_wsol_ata = body.unwrap_wsol_ata;
 			if (body.detect_wsol_ata !== undefined) params.detect_wsol_ata = body.detect_wsol_ata;

@@ -18,4 +18,5 @@ export type AgentTxPayload = {
 	strategy_id: string;
 	base_asset: string;
 	all?: boolean;
+	user_token_account?: string;
 };

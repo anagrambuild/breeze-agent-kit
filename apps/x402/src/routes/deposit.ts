@@ -9,6 +9,7 @@ const depositInput = z.object({
 	strategy_id: z.string().min(1),
 	base_asset: z.string().min(1),
 	amount: z.number().positive(),
+	user_token_account: z.string().min(1).optional(),
 });
 
 export const deposit = new Hono();
@@ -27,6 +28,7 @@ deposit.post(
 					strategy_id: body.strategy_id,
 					base_asset: body.base_asset,
 					amount: body.amount,
+					user_token_account: body.user_token_account,
 				},
 			};
 		},
