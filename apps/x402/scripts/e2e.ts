@@ -19,6 +19,18 @@ enum x402Endpoint {
 	Balance = "/balance",
 }
 
+function logStep(step: number, total: number, message: string): void {
+	console.log(`[step ${step}/${total}] ${message}`);
+}
+
+function logJson(label: string, value: unknown): void {
+	try {
+		console.log(`${label}: ${JSON.stringify(value, null, 2)}`);
+	} catch {
+		console.log(`${label}: <unserializable>`);
+	}
+}
+
 function firstDefined(...values: Array<string | undefined>): string | undefined {
 	for (const value of values) {
 		if (value && value.trim()) return value.trim();
@@ -159,53 +171,64 @@ function extractTransactionString(responseText: string): string {
 }
 
 function signAndSerializeTransaction(txString: string): { rawTx: Uint8Array; signature: string } {
+	console.log("[tx] preparing to decode transaction payload");
 	const trimmed = txString.trim();
 	const decodeAttempts: Uint8Array[] = [];
 
 	if (isBase64Like(trimmed)) {
+		console.log("[tx] attempting base64 decode path");
 		const base64 = normalizeBase64(trimmed);
 		decodeAttempts.push(Uint8Array.from(Buffer.from(base64, "base64")));
+		console.log(`[tx] base64 decode produced ${decodeAttempts[decodeAttempts.length - 1]?.length ?? 0} bytes`);
 	}
 
 	try {
+		console.log("[tx] attempting base58 decode path");
 		decodeAttempts.push(base58.decode(trimmed));
+		console.log(`[tx] base58 decode produced ${decodeAttempts[decodeAttempts.length - 1]?.length ?? 0} bytes`);
 	} catch {
-		// ignore decode failure; we will throw below if all attempts fail
+		console.log("[tx] base58 decode failed; continuing");
 	}
 
-	for (const bytes of decodeAttempts) {
+	for (const [idx, bytes] of decodeAttempts.entries()) {
 		if (bytes.length === 0) continue;
+		console.log(`[tx] decode attempt ${idx + 1}/${decodeAttempts.length} with ${bytes.length} bytes`);
 
 		try {
 			const versioned = VersionedTransaction.deserialize(bytes);
+			console.log("[tx] decoded as versioned transaction");
 			versioned.sign([keypair]);
 			const signatureBytes = versioned.signatures[0];
 			if (!signatureBytes) {
 				throw new Error("missing signature after signing versioned transaction");
 			}
+			console.log("[tx] signed versioned transaction successfully");
 			return {
 				rawTx: versioned.serialize(),
 				signature: base58.encode(signatureBytes),
 			};
 		} catch {
-			// try legacy below
+			console.log("[tx] versioned deserialize/sign failed; trying legacy transaction");
 		}
 
 		try {
 			const legacy = Transaction.from(bytes);
+			console.log("[tx] decoded as legacy transaction");
 			legacy.partialSign(keypair);
 			if (!legacy.signature) {
 				throw new Error("missing signature after signing legacy transaction");
 			}
+			console.log("[tx] signed legacy transaction successfully");
 			return {
 				rawTx: legacy.serialize(),
 				signature: base58.encode(legacy.signature),
 			};
 		} catch {
-			// try next decode attempt
+			console.log("[tx] legacy deserialize/sign failed; trying next decode attempt");
 		}
 	}
 
+	console.log("[tx] all decode/sign paths failed");
 	throw new Error(
 		"Unable to decode response as a Solana transaction (expected base64/base58 tx data).",
 	);
@@ -215,31 +238,50 @@ async function signAndSendReturnedTransaction(
 	endpoint: x402Endpoint,
 	txString: string,
 ): Promise<string> {
+	console.log(`[tx-send] ${endpoint}: validating returned transaction payload`);
 	if (!txString || txString.length < 20) {
 		throw new Error(`Invalid response body for ${endpoint}: missing transaction payload.`);
 	}
 
+	console.log(`[tx-send] ${endpoint}: signing transaction`);
 	const { rawTx, signature } = signAndSerializeTransaction(txString);
+	console.log(`[tx-send] ${endpoint}: sending raw transaction (${rawTx.length} bytes)`);
 	const sentSignature = await connection.sendRawTransaction(rawTx, { skipPreflight: false });
+	console.log(`[tx-send] ${endpoint}: submitted signature ${sentSignature}`);
+	console.log(`[tx-send] ${endpoint}: awaiting confirmation`);
 	await connection.confirmTransaction(sentSignature, "confirmed");
+	console.log(`[tx-send] ${endpoint}: transaction confirmed`);
 	return sentSignature || signature;
 }
 
 async function runE2ETest(endpoint: x402Endpoint): Promise<void> {
+	const TOTAL_STEPS = 8;
 	const { endpointUrl, init, payloadForLog } = requestFor(endpoint);
 
-	console.log(`\n=== x402 e2e test: ${endpoint} ===`);
+	console.log(`\n=== x402 e2e test start: ${endpoint} ===`);
+	logStep(1, TOTAL_STEPS, "build request");
 	console.log(`target: ${endpointUrl}`);
+	logJson("request init", {
+		method: init.method ?? "GET",
+		hasBody: Boolean(init.body),
+		headers: init.headers ?? {},
+	});
 	if (payloadForLog) {
 		console.log("payload:", payloadForLog);
 	}
-	console.log("preflight: checking endpoint without payment header");
+	logStep(2, TOTAL_STEPS, "preflight request without payment proof");
 
 	const preflight = await fetch(endpointUrl, init);
-
+	const paymentRequiredHeader =
+		preflight.headers.get("payment-required") ?? preflight.headers.get("x-payment-required");
 	const preflightBody = await preflight.text();
 	console.log(`preflight status: ${preflight.status}`);
+	console.log(
+		`preflight payment-required header: ${paymentRequiredHeader ? "<present>" : "<missing>"}`,
+	);
+	logJson("preflight body", preflightBody);
 
+	logStep(3, TOTAL_STEPS, "validate preflight result");
 	if (preflight.status === 404) {
 		throw new Error(
 			[
@@ -261,7 +303,7 @@ async function runE2ETest(endpoint: x402Endpoint): Promise<void> {
 		console.warn(`Preflight did not return 402 (got ${preflight.status}). Continuing anyway.`);
 	}
 
-	console.log("requesting paid endpoint with automatic x402 handling");
+	logStep(4, TOTAL_STEPS, "request paid endpoint with automatic x402 handling");
 	let response: Response;
 	try {
 		response = await fetchWithPayment(endpointUrl, init);
@@ -279,6 +321,7 @@ async function runE2ETest(endpoint: x402Endpoint): Promise<void> {
 		throw error;
 	}
 
+	logStep(5, TOTAL_STEPS, "read response and x402 headers");
 	const responseText = await response.text();
 	const paymentResponseHeader =
 		response.headers.get("payment-response") ?? response.headers.get("x-payment-response");
@@ -294,12 +337,21 @@ async function runE2ETest(endpoint: x402Endpoint): Promise<void> {
 
 	console.log(`status: ${response.status}`);
 	console.log(`payment-response header: ${paymentResponseHeader ?? "<missing>"}`);
-	console.log(`response body: ${responseText}`);
+	logJson("response body", responseText);
+	if (parsedPaymentResponse) {
+		logJson("parsed payment-response header", parsedPaymentResponse);
+	}
 
 	if (response.status === 402) {
 		throw new Error(`Payment failed for ${endpoint}: endpoint still returned HTTP 402.`);
 	}
+	if (!response.ok) {
+		throw new Error(
+			`Endpoint ${endpoint} failed after payment with HTTP ${response.status}. Response body: ${responseText}`,
+		);
+	}
 
+	logStep(6, TOTAL_STEPS, "validate endpoint-specific response shape");
 	if (endpoint === x402Endpoint.Balance) {
 		let parsedBalance: unknown;
 		try {
@@ -319,18 +371,23 @@ async function runE2ETest(endpoint: x402Endpoint): Promise<void> {
 		if (txString.length <= 25) {
 			throw new Error(`Invalid response body for ${endpoint}: expected valid tx payload.`);
 		}
+		console.log(`[tx] extracted transaction string length: ${txString.length}`);
 
 		if (SIGN_AND_SEND_TX) {
-			console.log("signing and sending transaction...");
+			logStep(7, TOTAL_STEPS, "sign and send returned transaction");
 			const signature = await signAndSendReturnedTransaction(endpoint, txString);
 			console.log(`submitted and confirmed transaction for ${endpoint}: ${signature}`);
 			console.log(`explorer: ${solanaExplorerTxUrl(signature, SOLANA_NETWORK)}`);
+		} else {
+			console.log("[tx] SIGN_AND_SEND_TX=false, skipping on-chain submission");
 		}
 	}
 
+	logStep(8, TOTAL_STEPS, "complete");
 	console.log(
 		`x402 payment succeeded for ${endpoint} (x402Version=${parsedPaymentResponse?.x402Version ?? "unknown"}, status=${response.status}).`,
 	);
+	console.log(`=== x402 e2e test end: ${endpoint} ===`);
 }
 
 await runE2ETest(x402Endpoint.Deposit);
