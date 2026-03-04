@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
-    "@faremeter/fetch": "^0.16.0",
-    "@faremeter/payment-solana": "^0.16.0",
-    "@faremeter/wallet-solana": "^0.16.0",
+    "@faremeter/fetch": "^0.17.0",
+    "@faremeter/payment-solana": "^0.17.0",
+    "@faremeter/wallet-solana": "^0.17.0",
     "@scure/base": "^2.0.0",
     "@solana/web3.js": "^1.98.0"
   },
