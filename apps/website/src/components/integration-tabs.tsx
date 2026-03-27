@@ -31,7 +31,7 @@ export function IntegrationTabs() {
 
 	return (
 		<section className="mb-16">
-			<div className="-mx-6 px-6 flex overflow-x-auto border-b border-border mb-6 scrollbar-none">
+			<div className="flex overflow-x-auto border-b border-border mb-6 scrollbar-none">
 				{tabs.map((tab) => (
 					<button
 						key={tab}
