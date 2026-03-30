@@ -6,14 +6,15 @@ An AI-powered agent that manages deposits and withdrawals on [Breeze](https://br
 
 The agent uses **Claude** (Anthropic) as its brain and has four tools it can call:
 
-| Tool | x402 Endpoint | What it does |
-|------|--------------|-------------|
-| `check_balance` | `GET /balance/:fund_user` | Shows your positions, yields earned, and APY |
-| `deposit` | `POST /deposit` | Builds an unsigned deposit transaction |
-| `withdraw` | `POST /withdraw` | Builds an unsigned withdrawal transaction |
-| `sign_and_send_tx` | n/a (local) | Signs and broadcasts the transaction to Solana |
+| Tool               | x402 Endpoint             | What it does                                   |
+| ------------------ | ------------------------- | ---------------------------------------------- |
+| `check_balance`    | `GET /balance/:fund_user` | Shows your positions, yields earned, and APY   |
+| `deposit`          | `POST /deposit`           | Builds an unsigned deposit transaction         |
+| `withdraw`         | `POST /withdraw`          | Builds an unsigned withdrawal transaction      |
+| `sign_and_send_tx` | n/a (local)               | Signs and broadcasts the transaction to Solana |
 
-When you say something like *"deposit 10 USDC"*, the agent:
+When you say something like _"deposit 10 USDC"_, the agent:
+
 1. Calls `deposit` (pays a USDC micropayment to the x402 API)
 2. Calls `sign_and_send_tx` to sign and send the returned transaction
 3. Returns the confirmed transaction link
@@ -46,11 +47,13 @@ SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ## Usage
 
 **Interactive mode** — chat back and forth:
+
 ```bash
 npm start
 ```
 
 **Single-shot** — one command and done:
+
 ```bash
 npm start -- "check my balances"
 ```

@@ -2,7 +2,14 @@
 name: breeze-x402-payment-api
 description: Operates Breeze x402 payment-gated endpoints for balance checks, deposits, and withdrawals on Solana. Use when the user asks to manage Breeze positions or execute paid x402 API calls.
 compatibility: Requires Node.js and network access to x402 API and Solana RPC. Requires a funded Solana wallet for x402 USDC micropayments.
-metadata: {"openclaw":{"requires":{"bins":["node"],"env":["WALLET_PRIVATE_KEY"]},"primaryEnv":"WALLET_PRIVATE_KEY"}}
+metadata:
+  {
+    "openclaw":
+      {
+        "requires": { "bins": ["node"], "env": ["WALLET_PRIVATE_KEY"] },
+        "primaryEnv": "WALLET_PRIVATE_KEY",
+      },
+  }
 ---
 
 # Breeze x402 Payment API
@@ -14,6 +21,7 @@ Interact with [Breeze](https://breeze.baby) through its x402 payment-gated HTTP 
 This is the fastest path from zero to a working deposit. Read this before anything else.
 
 **What you need:**
+
 - A Solana wallet funded with USDC and ~0.01 SOL (for transaction fees)
 - Node.js installed
 
@@ -23,22 +31,24 @@ Run once to create and save a keypair:
 
 ```js
 // generate-wallet.js
-const { Keypair } = require('@solana/web3.js');
-const fs = require('fs');
+const { Keypair } = require("@solana/web3.js");
+const fs = require("fs");
 
 // Install first: npm install @solana/web3.js --legacy-peer-deps
-const bs58Module = require('bs58');
+const bs58Module = require("bs58");
 const bs58 = bs58Module.default || bs58Module;
 
 const keypair = Keypair.generate();
 const secretKeyBase58 = bs58.encode(keypair.secretKey);
 
-console.log('Public key (fund this address):', keypair.publicKey.toBase58());
+console.log("Public key (fund this address):", keypair.publicKey.toBase58());
 
 // Save secret key to file — never print it to the console
-fs.writeFileSync('wallet-backup.json', JSON.stringify(Array.from(keypair.secretKey)));
-fs.writeFileSync('.env', `WALLET_PRIVATE_KEY=${secretKeyBase58}\n`);
-console.log('Saved .env with WALLET_PRIVATE_KEY and wallet-backup.json — keep both secret and out of git!');
+fs.writeFileSync("wallet-backup.json", JSON.stringify(Array.from(keypair.secretKey)));
+fs.writeFileSync(".env", `WALLET_PRIVATE_KEY=${secretKeyBase58}\n`);
+console.log(
+	"Saved .env with WALLET_PRIVATE_KEY and wallet-backup.json — keep both secret and out of git!",
+);
 ```
 
 ```bash
@@ -80,71 +90,77 @@ Save as `deposit.js` and run with `node deposit.js`:
 
 ```js
 // deposit.js — CommonJS, no TypeScript needed
-'use strict';
+"use strict";
 
-const { wrap } = require('@faremeter/fetch');
-const { createPaymentHandler } = require('@faremeter/payment-solana/exact');
-const { createLocalWallet } = require('@faremeter/wallet-solana');
-const { Connection, Keypair, PublicKey, VersionedTransaction, Transaction } = require('@solana/web3.js');
+const { wrap } = require("@faremeter/fetch");
+const { createPaymentHandler } = require("@faremeter/payment-solana/exact");
+const { createLocalWallet } = require("@faremeter/wallet-solana");
+const {
+	Connection,
+	Keypair,
+	PublicKey,
+	VersionedTransaction,
+	Transaction,
+} = require("@solana/web3.js");
 
 // bs58 exports .default in some CJS environments
-const bs58Module = require('bs58');
+const bs58Module = require("bs58");
 const bs58 = bs58Module.default || bs58Module;
 
 async function main() {
-  const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
-  if (!WALLET_PRIVATE_KEY) throw new Error('Set WALLET_PRIVATE_KEY env var');
+	const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
+	if (!WALLET_PRIVATE_KEY) throw new Error("Set WALLET_PRIVATE_KEY env var");
 
-  const API_URL = 'https://x402.breeze.baby';
-  const STRATEGY_ID = '43620ba3-354c-456b-aa3c-5bf7fa46a6d4';
-  const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-  const DEPOSIT_AMOUNT = 1_000_000; // 1 USDC (6 decimals)
+	const API_URL = "https://x402.breeze.baby";
+	const STRATEGY_ID = "43620ba3-354c-456b-aa3c-5bf7fa46a6d4";
+	const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+	const DEPOSIT_AMOUNT = 1_000_000; // 1 USDC (6 decimals)
 
-  // Setup
-  const keypair = Keypair.fromSecretKey(bs58.decode(WALLET_PRIVATE_KEY));
-  const connection = new Connection('https://api.mainnet-beta.solana.com');
-  const wallet = await createLocalWallet('mainnet-beta', keypair);
-  const paymentHandler = createPaymentHandler(wallet, new PublicKey(USDC_MINT), connection);
-  const fetchWithPayment = wrap(fetch, { handlers: [paymentHandler] });
+	// Setup
+	const keypair = Keypair.fromSecretKey(bs58.decode(WALLET_PRIVATE_KEY));
+	const connection = new Connection("https://api.mainnet-beta.solana.com");
+	const wallet = await createLocalWallet("mainnet-beta", keypair);
+	const paymentHandler = createPaymentHandler(wallet, new PublicKey(USDC_MINT), connection);
+	const fetchWithPayment = wrap(fetch, { handlers: [paymentHandler] });
 
-  console.log('Wallet:', keypair.publicKey.toBase58());
+	console.log("Wallet:", keypair.publicKey.toBase58());
 
-  // Build deposit transaction
-  const res = await fetchWithPayment(`${API_URL}/deposit`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      amount: DEPOSIT_AMOUNT,
-      user_key: keypair.publicKey.toBase58(),
-      strategy_id: STRATEGY_ID,
-      base_asset: USDC_MINT,
-    }),
-  });
+	// Build deposit transaction
+	const res = await fetchWithPayment(`${API_URL}/deposit`, {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({
+			amount: DEPOSIT_AMOUNT,
+			user_key: keypair.publicKey.toBase58(),
+			strategy_id: STRATEGY_ID,
+			base_asset: USDC_MINT,
+		}),
+	});
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Deposit failed (${res.status}): ${text}`);
-  }
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`Deposit failed (${res.status}): ${text}`);
+	}
 
-  // Parse transaction string (may be bare or JSON-wrapped)
-  const raw = (await res.text()).trim();
-  const txString = raw.startsWith('"') ? JSON.parse(raw) : raw;
+	// Parse transaction string (may be bare or JSON-wrapped)
+	const raw = (await res.text()).trim();
+	const txString = raw.startsWith('"') ? JSON.parse(raw) : raw;
 
-  // Sign and send (try versioned tx first, fall back to legacy)
-  const bytes = Buffer.from(txString, 'base64');
-  let sig;
-  try {
-    const tx = VersionedTransaction.deserialize(bytes);
-    tx.sign([keypair]);
-    sig = await connection.sendRawTransaction(tx.serialize());
-  } catch {
-    const tx = Transaction.from(bytes);
-    tx.partialSign(keypair);
-    sig = await connection.sendRawTransaction(tx.serialize());
-  }
+	// Sign and send (try versioned tx first, fall back to legacy)
+	const bytes = Buffer.from(txString, "base64");
+	let sig;
+	try {
+		const tx = VersionedTransaction.deserialize(bytes);
+		tx.sign([keypair]);
+		sig = await connection.sendRawTransaction(tx.serialize());
+	} catch {
+		const tx = Transaction.from(bytes);
+		tx.partialSign(keypair);
+		sig = await connection.sendRawTransaction(tx.serialize());
+	}
 
-  await connection.confirmTransaction(sig, 'confirmed');
-  console.log('Done! View transaction:', `https://solscan.io/tx/${sig}`);
+	await connection.confirmTransaction(sig, "confirmed");
+	console.log("Done! View transaction:", `https://solscan.io/tx/${sig}`);
 }
 
 main().catch(console.error);
@@ -161,10 +177,10 @@ export $(cat .env | xargs) && node deposit.js
 
 > **These are different APIs with different paths.** Do not mix them up.
 
-| API | Base URL | Endpoints | Auth method |
-|-----|----------|-----------|-------------|
+| API                   | Base URL                   | Endpoints                                                               | Auth method                         |
+| --------------------- | -------------------------- | ----------------------------------------------------------------------- | ----------------------------------- |
 | **x402 (this skill)** | `https://x402.breeze.baby` | `/balance/:fund_user`<br>`/deposit`<br>`/withdraw`<br>`/healthz` (free) | USDC micropayment via x402 protocol |
-| **Direct REST API** | `https://api.breeze.baby` | `/deposit/tx`<br>`/withdraw/tx`<br>`/strategy-info/:id` | `x-api-key` header |
+| **Direct REST API**   | `https://api.breeze.baby`  | `/deposit/tx`<br>`/withdraw/tx`<br>`/strategy-info/:id`                 | `x-api-key` header                  |
 
 This skill uses the **x402 API**. The direct REST API uses different paths and API key auth — do not mix them.
 
@@ -311,17 +327,17 @@ const txString = await response.text();
 
 Withdraw parameters:
 
-| Parameter         | Type    | Required | Description                                    |
-| ----------------- | ------- | -------- | ---------------------------------------------- |
-| `amount`          | number  | yes      | Amount in base units                           |
-| `user_key`        | string  | yes      | User's Solana public key                       |
+| Parameter         | Type    | Required | Description                                                                                 |
+| ----------------- | ------- | -------- | ------------------------------------------------------------------------------------------- |
+| `amount`          | number  | yes      | Amount in base units                                                                        |
+| `user_key`        | string  | yes      | User's Solana public key                                                                    |
 | `strategy_id`     | string  | yes      | Breeze strategy ID (default: `43620ba3-354c-456b-aa3c-5bf7fa46a6d4`, or any valid strategy) |
-| `base_asset`      | string  | yes      | Token mint address                             |
-| `all`             | boolean | no       | Withdraw entire position                       |
-| `exclude_fees`    | boolean | no       | Exclude fees from amount (recommended: `true`) |
-| `unwrap_wsol_ata` | boolean | no       | Unwrap WSOL to native SOL after withdraw       |
-| `create_wsol_ata` | boolean | no       | Create WSOL ATA if it doesn't exist            |
-| `detect_wsol_ata` | boolean | no       | Auto-detect WSOL ATA and set flags accordingly |
+| `base_asset`      | string  | yes      | Token mint address                                                                          |
+| `all`             | boolean | no       | Withdraw entire position                                                                    |
+| `exclude_fees`    | boolean | no       | Exclude fees from amount (recommended: `true`)                                              |
+| `unwrap_wsol_ata` | boolean | no       | Unwrap WSOL to native SOL after withdraw                                                    |
+| `create_wsol_ata` | boolean | no       | Create WSOL ATA if it doesn't exist                                                         |
+| `detect_wsol_ata` | boolean | no       | Auto-detect WSOL ATA and set flags accordingly                                              |
 
 WSOL handling: when withdrawing WSOL (`So11111111111111111111111111111111111111112`), pass `unwrap_wsol_ata: true` to receive native SOL.
 
@@ -340,6 +356,7 @@ Copy a checklist into your working notes and mark each step complete.
 ### Balance workflow
 
 Task Progress:
+
 - [ ] Read `wallet public key` input
 - [ ] Call `GET /balance/:fund_user` with URL-encoded wallet key
 - [ ] Verify `response.ok`; if not, capture status/body and stop
@@ -350,6 +367,7 @@ Task Progress:
 ### Deposit workflow
 
 Task Progress:
+
 - [ ] Confirm token mint and decimals
 - [ ] Convert user amount to base units (`floor(amount * 10^decimals)`)
 - [ ] Call `POST /deposit` with validated payload
@@ -361,6 +379,7 @@ Task Progress:
 ### Withdraw workflow
 
 Task Progress:
+
 - [ ] Confirm token mint and decimals
 - [ ] Convert user amount to base units unless `all=true`
 - [ ] Set `exclude_fees: true` unless user asks otherwise
@@ -458,17 +477,18 @@ For balance, return:
 
 ## Environment Variables
 
-| Variable             | Required | Default                                | Description                       |
-| -------------------- | -------- | -------------------------------------- | --------------------------------- |
-| `WALLET_PRIVATE_KEY` | yes      | —                                      | Base58-encoded Solana private key |
+| Variable             | Required | Default                                | Description                                      |
+| -------------------- | -------- | -------------------------------------- | ------------------------------------------------ |
+| `WALLET_PRIVATE_KEY` | yes      | —                                      | Base58-encoded Solana private key                |
 | `STRATEGY_ID`        | no       | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID — any valid strategy ID works |
-| `X402_API_URL`       | no       | `https://x402.breeze.baby`             | x402 payment API URL              |
-| `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com`  | Solana RPC endpoint               |
-| `BASE_ASSET`         | no       | USDC mint                              | Default token mint for operations |
+| `X402_API_URL`       | no       | `https://x402.breeze.baby`             | x402 payment API URL                             |
+| `SOLANA_RPC_URL`     | no       | `https://api.mainnet-beta.solana.com`  | Solana RPC endpoint                              |
+| `BASE_ASSET`         | no       | USDC mint                              | Default token mint for operations                |
 
 ## External Endpoints
 
 This skill sends requests to:
+
 - `https://x402.breeze.baby` — Breeze x402 payment-gated API (deposits, withdrawals, balances)
 - `https://api.mainnet-beta.solana.com` — Solana RPC (transaction signing and broadcasting)
 
