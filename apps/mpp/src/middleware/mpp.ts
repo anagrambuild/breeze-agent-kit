@@ -6,6 +6,8 @@ const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const PAY_TO = process.env.MPP_PAY_TO;
 const SECRET_KEY = process.env.MPP_SECRET_KEY;
 const PRICE_USDC = process.env.MPP_PRICE_USDC || "1000"; // 0.001 USDC in base units
+const NETWORK = "mainnet-beta";
+const RPC_URL = process.env.SOLANA_RPC_URL;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mppx: any = null;
@@ -18,6 +20,8 @@ async function getMppx() {
 		return null;
 	}
 
+	console.log(`[mpp] initializing — recipient=${PAY_TO}, network=${NETWORK}, rpc=${RPC_URL || "default"}`);
+
 	mppx = await Mppx.create({
 		secretKey: SECRET_KEY,
 		methods: [
@@ -25,7 +29,8 @@ async function getMppx() {
 				recipient: PAY_TO,
 				currency: USDC_MINT,
 				decimals: 6,
-				network: "mainnet-beta",
+				network: NETWORK,
+				...(RPC_URL ? { rpcUrl: RPC_URL } : {}),
 				store: Store.memory(),
 			}),
 		],

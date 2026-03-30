@@ -78,7 +78,7 @@ app.get("/strategy-info/:strategy_id?", async (c) => {
 	const strategyId = c.req.param("strategy_id") || DEFAULT_STRATEGY_ID;
 	return breezeProxy({
 		method: "GET",
-		path: `/strategy-info/${encodeURIComponent(strategyId)}/`,
+		path: `/strategy-info/${encodeURIComponent(strategyId)}`,
 	});
 });
 
