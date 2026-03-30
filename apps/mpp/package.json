@@ -1,0 +1,25 @@
+{
+	"name": "mpp",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun run --watch src/index.ts",
+		"build": "bun build src/index.ts --outdir dist --target bun --sourcemap",
+		"start": "bun dist/index.js",
+		"check": "bun x tsc --noEmit",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"@solana/mpp": "^0.2.0",
+		"mppx": "^0.3.15",
+		"@solana/kit": "^6.5.0",
+		"@hono/node-server": "^1.19.9",
+		"@hono/zod-validator": "^0.7.6",
+		"hono": "^4.7.4",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	}
+}

@@ -29,86 +29,83 @@ Be concise in your responses. Report results clearly with amounts and transactio
 const MAX_TOOL_ROUNDS = 10;
 
 export async function runAgent(
-  userMessage: string,
-  conversationHistory: Anthropic.MessageParam[] = []
+	userMessage: string,
+	conversationHistory: Anthropic.MessageParam[] = [],
 ): Promise<{
-  response: string;
-  history: Anthropic.MessageParam[];
+	response: string;
+	history: Anthropic.MessageParam[];
 }> {
-  const messages: Anthropic.MessageParam[] = [
-    ...conversationHistory,
-    { role: "user", content: userMessage },
-  ];
+	const messages: Anthropic.MessageParam[] = [
+		...conversationHistory,
+		{ role: "user", content: userMessage },
+	];
 
-  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const response = await client.messages.create({
-      model: "claude-opus-4-6",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      tools: toolDefinitions,
-      messages,
-    });
+	for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+		const response = await client.messages.create({
+			model: "claude-opus-4-6",
+			max_tokens: 4096,
+			system: SYSTEM_PROMPT,
+			tools: toolDefinitions,
+			messages,
+		});
 
-    // Collect text from this response
-    if (response.stop_reason === "end_turn") {
-      const textBlocks = response.content.filter(
-        (block): block is Anthropic.TextBlock => block.type === "text"
-      );
-      const text = textBlocks.map((b) => b.text).join("\n");
+		// Collect text from this response
+		if (response.stop_reason === "end_turn") {
+			const textBlocks = response.content.filter(
+				(block): block is Anthropic.TextBlock => block.type === "text",
+			);
+			const text = textBlocks.map((b) => b.text).join("\n");
 
-      messages.push({ role: "assistant", content: response.content });
+			messages.push({ role: "assistant", content: response.content });
 
-      return { response: text, history: messages };
-    }
+			return { response: text, history: messages };
+		}
 
-    if (response.stop_reason === "tool_use") {
-      // Append assistant message with tool use blocks
-      messages.push({ role: "assistant", content: response.content });
+		if (response.stop_reason === "tool_use") {
+			// Append assistant message with tool use blocks
+			messages.push({ role: "assistant", content: response.content });
 
-      // Execute each tool call
-      const toolUseBlocks = response.content.filter(
-        (block): block is Anthropic.ToolUseBlock => block.type === "tool_use"
-      );
+			// Execute each tool call
+			const toolUseBlocks = response.content.filter(
+				(block): block is Anthropic.ToolUseBlock => block.type === "tool_use",
+			);
 
-      const toolResults: Anthropic.ToolResultBlockParam[] = [];
+			const toolResults: Anthropic.ToolResultBlockParam[] = [];
 
-      for (const toolUse of toolUseBlocks) {
-        console.log(`  [Tool] ${toolUse.name}(${JSON.stringify(toolUse.input)})`);
+			for (const toolUse of toolUseBlocks) {
+				console.log(`  [Tool] ${toolUse.name}(${JSON.stringify(toolUse.input)})`);
 
-        const result = await executeTool(
-          toolUse.name,
-          toolUse.input as Record<string, unknown>
-        );
+				const result = await executeTool(toolUse.name, toolUse.input as Record<string, unknown>);
 
-        console.log(`  [Result] ${result.substring(0, 200)}${result.length > 200 ? "..." : ""}`);
+				console.log(`  [Result] ${result.substring(0, 200)}${result.length > 200 ? "..." : ""}`);
 
-        toolResults.push({
-          type: "tool_result",
-          tool_use_id: toolUse.id,
-          content: result,
-        });
-      }
+				toolResults.push({
+					type: "tool_result",
+					tool_use_id: toolUse.id,
+					content: result,
+				});
+			}
 
-      messages.push({ role: "user", content: toolResults });
-      continue;
-    }
+			messages.push({ role: "user", content: toolResults });
+			continue;
+		}
 
-    // Unexpected stop reason — return whatever we have
-    const fallbackText = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === "text")
-      .map((b) => b.text)
-      .join("\n");
+		// Unexpected stop reason — return whatever we have
+		const fallbackText = response.content
+			.filter((block): block is Anthropic.TextBlock => block.type === "text")
+			.map((b) => b.text)
+			.join("\n");
 
-    messages.push({ role: "assistant", content: response.content });
+		messages.push({ role: "assistant", content: response.content });
 
-    return {
-      response: fallbackText || "(No response)",
-      history: messages,
-    };
-  }
+		return {
+			response: fallbackText || "(No response)",
+			history: messages,
+		};
+	}
 
-  return {
-    response: "Reached maximum tool call rounds. Please try a simpler request.",
-    history: messages,
-  };
+	return {
+		response: "Reached maximum tool call rounds. Please try a simpler request.",
+		history: messages,
+	};
 }

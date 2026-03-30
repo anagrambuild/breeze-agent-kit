@@ -48,17 +48,17 @@ bun start
 
 ## Environment Variables
 
-| Variable             | Default                               | Description                                    |
-| -------------------- | ------------------------------------- | ---------------------------------------------- |
-| `SOLANA_PRIVATE_KEY` | (required)                            | Base58-encoded Solana private key              |
-| `SOLANA_RPC_URL`     | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint                            |
-| `API_URL`            | `https://x402.breeze.baby`            | x402 API base URL                              |
+| Variable             | Default                                | Description                                      |
+| -------------------- | -------------------------------------- | ------------------------------------------------ |
+| `SOLANA_PRIVATE_KEY` | (required)                             | Base58-encoded Solana private key                |
+| `SOLANA_RPC_URL`     | `https://api.mainnet-beta.solana.com`  | Solana RPC endpoint                              |
+| `API_URL`            | `https://x402.breeze.baby`             | x402 API base URL                                |
 | `STRATEGY_ID`        | `43620ba3-354c-456b-aa3c-5bf7fa46a6d4` | Breeze strategy ID — any valid strategy ID works |
-| `BASE_ASSET`         | USDC mint                             | Token mint address                             |
-| `DEPOSIT_AMOUNT`     | `10000`                               | Deposit amount in base units                   |
-| `WITHDRAW_AMOUNT`    | `1000`                                | Withdraw amount in base units                  |
-| `SIGN_AND_SEND_TX`   | `true`                                | Whether to sign and send returned transactions |
-| `WITHDRAW_ALL`       | `false`                               | Withdraw entire position                       |
+| `BASE_ASSET`         | USDC mint                              | Token mint address                               |
+| `DEPOSIT_AMOUNT`     | `10000`                                | Deposit amount in base units                     |
+| `WITHDRAW_AMOUNT`    | `1000`                                 | Withdraw amount in base units                    |
+| `SIGN_AND_SEND_TX`   | `true`                                 | Whether to sign and send returned transactions   |
+| `WITHDRAW_ALL`       | `false`                                | Withdraw entire position                         |
 
 ## Tech Stack
 

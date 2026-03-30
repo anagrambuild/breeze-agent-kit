@@ -4,9 +4,20 @@ export function X402IntegrationTab() {
 	return (
 		<div>
 			<p className="text-sm text-dim mb-6">
-				Payment-gated HTTP API at <a href="https://x402.breeze.baby" target="_blank" rel="noopener noreferrer" className="text-pink">x402.breeze.baby</a>. No API keys
-				- agents pay a micro USDC fee per request using the{" "}
-				<a href="https://www.faremeter.com" target="_blank" rel="noopener noreferrer">x402 protocol</a>.
+				Payment-gated HTTP API at{" "}
+				<a
+					href="https://x402.breeze.baby"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="text-pink"
+				>
+					x402.breeze.baby
+				</a>
+				. No API keys - agents pay a micro USDC fee per request using the{" "}
+				<a href="https://www.faremeter.com" target="_blank" rel="noopener noreferrer">
+					x402 protocol
+				</a>
+				.
 			</p>
 
 			<h3 className="text-sm font-bold mb-3">How x402 works</h3>

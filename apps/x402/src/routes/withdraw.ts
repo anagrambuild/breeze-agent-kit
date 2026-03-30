@@ -34,7 +34,8 @@ withdraw.post(
 				amount: body.amount,
 				all: body.all ?? false,
 			};
-			if (body.user_token_account !== undefined) params.user_token_account = body.user_token_account;
+			if (body.user_token_account !== undefined)
+				params.user_token_account = body.user_token_account;
 			if (body.create_wsol_ata !== undefined) params.create_wsol_ata = body.create_wsol_ata;
 			if (body.unwrap_wsol_ata !== undefined) params.unwrap_wsol_ata = body.unwrap_wsol_ata;
 			if (body.detect_wsol_ata !== undefined) params.detect_wsol_ata = body.detect_wsol_ata;

@@ -179,20 +179,26 @@ function signAndSerializeTransaction(txString: string): { rawTx: Uint8Array; sig
 		console.log("[tx] attempting base64 decode path");
 		const base64 = normalizeBase64(trimmed);
 		decodeAttempts.push(Uint8Array.from(Buffer.from(base64, "base64")));
-		console.log(`[tx] base64 decode produced ${decodeAttempts[decodeAttempts.length - 1]?.length ?? 0} bytes`);
+		console.log(
+			`[tx] base64 decode produced ${decodeAttempts[decodeAttempts.length - 1]?.length ?? 0} bytes`,
+		);
 	}
 
 	try {
 		console.log("[tx] attempting base58 decode path");
 		decodeAttempts.push(base58.decode(trimmed));
-		console.log(`[tx] base58 decode produced ${decodeAttempts[decodeAttempts.length - 1]?.length ?? 0} bytes`);
+		console.log(
+			`[tx] base58 decode produced ${decodeAttempts[decodeAttempts.length - 1]?.length ?? 0} bytes`,
+		);
 	} catch {
 		console.log("[tx] base58 decode failed; continuing");
 	}
 
 	for (const [idx, bytes] of decodeAttempts.entries()) {
 		if (bytes.length === 0) continue;
-		console.log(`[tx] decode attempt ${idx + 1}/${decodeAttempts.length} with ${bytes.length} bytes`);
+		console.log(
+			`[tx] decode attempt ${idx + 1}/${decodeAttempts.length} with ${bytes.length} bytes`,
+		);
 
 		try {
 			const versioned = VersionedTransaction.deserialize(bytes);
