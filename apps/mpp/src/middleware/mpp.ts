@@ -20,8 +20,6 @@ async function getMppx() {
 		return null;
 	}
 
-	console.log(`[mpp] initializing — recipient=${PAY_TO}, network=${NETWORK}, rpc=${RPC_URL || "default"}`);
-
 	mppx = await Mppx.create({
 		secretKey: SECRET_KEY,
 		methods: [
