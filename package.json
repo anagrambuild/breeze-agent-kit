@@ -30,6 +30,7 @@
 		"start:mpp": "bun run --filter mpp start",
 		"check:mpp": "bun run --filter mpp check",
 		"test:mpp": "bun run --filter mpp test",
+		"e2e:mpp": "bun run --filter mpp e2e",
 		"dev:website": "bun run --filter website dev",
 		"build:website": "bun run --filter website build",
 		"start:website": "bun run --filter website start",
